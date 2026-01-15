@@ -133,10 +133,10 @@
       transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* On mobile, constrain network to upper portion (above hero content at 38%) */
+    /* On mobile, network fills the top ~60% of the screen (hero content at bottom) */
     @media (max-width: 767px) {
       .network-container:not(.collapsed) {
-        height: 36%;
+        height: 58%;
       }
     }
 
@@ -600,22 +600,22 @@
       animation: pulse 2s ease-in-out infinite;
     }
 
-    /* Mobile: portrait and title side by side, description below */
+    /* Mobile: hero content at bottom of screen, network fills top */
     @media (max-width: 767px) {
       .hero-content {
-        bottom: auto;
-        top: 38%;
+        top: auto;
+        bottom: 80px;
         left: 1rem;
         right: 1rem;
         display: grid;
-        grid-template-columns: 120px 1fr;
+        grid-template-columns: 100px 1fr;
         grid-template-rows: auto auto;
         gap: 0.75rem 1rem;
         align-items: start;
       }
       .hero-portrait {
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
         grid-row: 1;
         grid-column: 1;
       }
@@ -629,10 +629,11 @@
       }
       .hero-label {
         margin-bottom: 0;
+        font-size: 0.55rem;
       }
       .hero-title {
         margin-bottom: 0;
-        font-size: 1.75rem;
+        font-size: 1.6rem;
         line-height: 1.2;
       }
       .hero-title span {
@@ -643,11 +644,13 @@
       .hero-intro {
         grid-column: 1 / -1;
         grid-row: 2;
-        margin-top: 1rem;
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
       }
       .hero-scroll {
         grid-column: 1 / -1;
         grid-row: 3;
+        margin-top: 0.5rem;
       }
     }
 

@@ -2169,11 +2169,18 @@
       .text(d => d.label);
 
     // Add VP hub node (only visible when collapsed)
+    // Appended last so it renders on top of edges
     const heroNode = simulationNodes.find(n => n.id === 'hero');
     const vpGroup = svg.append("g")
       .attr("class", "vp-hub-node")
       .attr("transform", `translate(${heroNode.x}, ${heroNode.y})`);
 
+    // Solid background circle to cover edges
+    vpGroup.append("circle")
+      .attr("r", 4)
+      .attr("fill", "var(--bg-deep)");
+
+    // Visible circle
     vpGroup.append("circle")
       .attr("r", 4)
       .attr("fill", "var(--text-dim)");
@@ -2260,14 +2267,12 @@
         navIndicator.classList.toggle('visible', isCollapsed);
       }
 
-      // Hide network when approaching footer
+      // Hide network when footer is visible
       const footer = document.querySelector('.footer');
       if (footer && isCollapsed) {
         const footerRect = footer.getBoundingClientRect();
-        const networkHeight = networkContainer.offsetHeight;
-        // Start fading when footer is within 100px of where network would be
-        const hideThreshold = window.innerHeight - networkHeight - 100;
-        const shouldHide = footerRect.top < hideThreshold + 150;
+        // Hide when footer top enters viewport (with some buffer)
+        const shouldHide = footerRect.top < window.innerHeight - 50;
         networkContainer.classList.toggle('hidden-at-footer', shouldHide);
       } else {
         networkContainer.classList.remove('hidden-at-footer');

@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vishal Patel, MD PhD</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-deep: #08080c;
+      --bg-card: #0e0e14;
+      --bg-elevated: #14141c;
+      --bg-map: rgba(8, 8, 12, 0.92);
+      --accent-teal: #4ecdc4;
+      --accent-teal-dim: rgba(78, 205, 196, 0.12);
+      --accent-amber: #d4a574;
+      --accent-amber-dim: rgba(212, 165, 116, 0.15);
+      --text-primary: #e8e6e3;
+      --text-secondary: #9a9a9a;
+      --text-dim: #5a5a5a;
+      --domain-research: #5e81ac;
+      --domain-data: #81a1c1;
+      --domain-wellness: #d4a574;
+      --domain-cognition: #4ecdc4;
+      --domain-meta: #a3be8c;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: 'Newsreader', Georgia, serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ========================================
+       NETWORK MAP - The core element
+    ======================================== */
+    
+    .network-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 100;
+      pointer-events: none;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .network-container.collapsed {
+      width: 140px;
+      height: 140px;
+      top: 1rem;
+      right: 1rem;
+      left: auto;
+      border-radius: 8px;
+      background: var(--bg-map);
+      border: 1px solid rgba(78, 205, 196, 0.15);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+      .network-container.collapsed {
+        width: 200px;
+        height: 200px;
+        top: 1.5rem;
+        right: 1.5rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .network-container.collapsed {
+        width: 280px;
+        height: 280px;
+        top: 2rem;
+        right: 2rem;
+      }
+    }
+
+    .network-svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.6;
+      transition: opacity 0.4s ease;
+    }
+
+    .network-container.collapsed .network-svg {
+      opacity: 1;
+    }
+
+    .network-container.collapsed:hover .network-svg {
+      opacity: 1;
+    }
+
+    /* Network elements */
+    .edge {
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 1;
+      fill: none;
+      transition: all 0.4s ease;
+    }
+
+    .edge.highlighted {
+      stroke: var(--accent-teal);
+      stroke-opacity: 0.4;
+      stroke-width: 1.5;
+    }
+
+    .node-group {
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .node-glow {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .node-group.active .node-glow {
+      opacity: 0.5;
+    }
+
+    .node-core {
+      opacity: 0.4;
+      transition: all 0.4s ease;
+    }
+
+    .node-group.active .node-core {
+      opacity: 1;
+      filter: brightness(1.3);
+    }
+
+    .node-group:hover .node-core {
+      opacity: 0.8;
+    }
+
+    .node-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7px;
+      fill: var(--text-dim);
+      text-anchor: middle;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .network-container.collapsed .node-label {
+      opacity: 0.7;
+    }
+
+    .node-group.active .node-label {
+      opacity: 1;
+      fill: var(--text-primary);
+    }
+
+    /* Expand hint */
+    .network-expand-hint {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .network-container.collapsed:hover .network-expand-hint {
+      opacity: 1;
+    }
+
+    /* ========================================
+       HEADER
+    ======================================== */
+    
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    .header > * {
+      pointer-events: auto;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .site-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.4s ease;
+    }
+
+    .site-title.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .nav-indicator {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .nav-indicator.visible {
+      opacity: 1;
+    }
+
+    /* ========================================
+       HERO SECTION
+    ======================================== */
+    
+    .hero {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem 1.5rem 3rem;
+      position: relative;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 540px;
+    }
+
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards 0.3s;
+    }
+
+    .hero-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(2.5rem, 10vw, 4rem);
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.8s ease forwards 0.5s;
+    }
+
+    .hero-title span {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.5em;
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+
+    .hero-intro {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards 0.7s;
+    }
+
+    .hero-scroll {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .hero-scroll-line {
+      width: 40px;
+      height: 1px;
+      background: var(--text-dim);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ========================================
+       CONTENT SECTIONS
+    ======================================== */
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 10;
+    }
+
+    .section-card {
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 6rem 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .section-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 1.5rem;
+      right: 1.5rem;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--text-dim), transparent);
+      opacity: 0.2;
+    }
+
+    .section-domain {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-domain::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .section-card[data-domain="research"] .section-domain { color: var(--domain-research); }
+    .section-card[data-domain="research"] .section-domain::before { background: var(--domain-research); }
+    
+    .section-card[data-domain="data-science"] .section-domain { color: var(--domain-data); }
+    .section-card[data-domain="data-science"] .section-domain::before { background: var(--domain-data); }
+    
+    .section-card[data-domain="wellness"] .section-domain { color: var(--domain-wellness); }
+    .section-card[data-domain="wellness"] .section-domain::before { background: var(--domain-wellness); }
+    
+    .section-card[data-domain="cognition"] .section-domain { color: var(--domain-cognition); }
+    .section-card[data-domain="cognition"] .section-domain::before { background: var(--domain-cognition); }
+    
+    .section-card[data-domain="meta"] .section-domain { color: var(--domain-meta); }
+    .section-card[data-domain="meta"] .section-domain::before { background: var(--domain-meta); }
+
+    .section-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(1.75rem, 7vw, 2.5rem);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      max-width: 600px;
+    }
+
+    .section-description {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .section-description p {
+      margin-bottom: 1rem;
+    }
+
+    .section-description em {
+      color: var(--text-primary);
+      font-style: italic;
+    }
+
+    /* Connections */
+    .connections-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .connections-scroll {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      margin: 0 -1.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .connections-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .connection-chip {
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.6rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .connection-chip:hover,
+    .connection-chip:active {
+      background: var(--accent-teal-dim);
+      border-color: var(--accent-teal);
+      color: var(--accent-teal);
+    }
+
+    /* ========================================
+       CHAPTER DIVIDERS
+    ======================================== */
+    
+    .chapter-divider {
+      min-height: 40vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+    }
+
+    .chapter-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .chapter-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(1.5rem, 6vw, 2rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-secondary);
+    }
+
+    /* ========================================
+       FOOTER
+    ======================================== */
+    
+    .footer {
+      padding: 4rem 1.5rem;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .footer-title {
+      font-family: 'Newsreader', serif;
+      font-size: 1.5rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--text-dim);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--accent-teal);
+      border-color: var(--accent-teal);
+    }
+
+    .footer-copyright {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+    }
+
+    /* ========================================
+       RESPONSIVE ADJUSTMENTS
+    ======================================== */
+    
+    @media (min-width: 768px) {
+      .hero {
+        padding: 4rem 3rem 5rem;
+      }
+
+      .section-card {
+        padding: 8rem 3rem 5rem;
+      }
+
+      .connections-scroll {
+        margin: 0 -3rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
+      }
+
+      .hero-intro,
+      .section-description {
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hero {
+        padding: 6rem 6rem 8rem;
+      }
+
+      .section-card {
+        padding: 10rem 6rem 6rem;
+        padding-right: 340px; /* Space for floating map */
+      }
+
+      .connections-scroll {
+        margin: 0;
+        padding-left: 0;
+        padding-right: 0;
+      }
+    }
+
+    /* ========================================
+       GRAIN OVERLAY
+    ======================================== */
+    
+    .grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ========================================
+       SCROLL PROGRESS
+    ======================================== */
+    
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--accent-teal);
+      z-index: 10000;
+      transform-origin: left;
+      transform: scaleX(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="grain"></div>
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="site-title" id="siteTitle">V. Patel</div>
+      <div class="nav-indicator" id="navIndicator">01 / 14</div>
+    </div>
+  </header>
+
+  <!-- Network Map Container -->
+  <div class="network-container" id="networkContainer">
+    <svg class="network-svg" id="networkSvg" viewBox="0 0 300 300"></svg>
+    <div class="network-expand-hint">Click to expand</div>
+  </div>
+
+  <!-- ========================================
+       HERO
+  ======================================== -->
+  
+  <section class="hero" id="hero" data-node="hero">
+    <div class="hero-content">
+      <div class="hero-label">The embedding space of a life</div>
+      <h1 class="hero-title">
+        Vishal Patel
+        <span>MD, PhD</span>
+      </h1>
+      <p class="hero-intro">
+        I search for hidden patterns in wellness &amp; illness—and how those patterns change when we intersect with information technologies.
+      </p>
+      <div class="hero-scroll">
+        <div class="hero-scroll-line"></div>
+        <span>Scroll to explore</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================
+       CONTENT
+  ======================================== -->
+  
+  <div class="content-wrapper">
+
+    <!-- CHAPTER I -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter I</div>
+      <h2 class="chapter-title">Foundations</h2>
+    </div>
+
+    <section class="section-card" data-domain="research" data-node="georgia-tech">
+      <div class="section-domain">Research &amp; Academia</div>
+      <div class="section-period">Georgia Institute of Technology · 2001–2005</div>
+      <h2 class="section-title">BS Mechanical Engineering</h2>
+      <div class="section-description">
+        <p>Before medicine, engineering. The quantitative foundations—thermodynamics, systems analysis, computational methods—that would later shape how I approach biological and behavioral complexity.</p>
+        <p>Engineers ask: <em>how do we model this system? How do we intervene?</em> These questions never left me.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="md-phd" class="connection-chip">PhD Genetics</a>
+        <a href="#" data-target="network-thinking" class="connection-chip">Network Thinking</a>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="research" data-node="md-phd">
+      <div class="section-domain">Research &amp; Academia</div>
+      <div class="section-period">Case Western Reserve University · 2005–2013</div>
+      <h2 class="section-title">MD &amp; PhD in Genetics</h2>
+      <div class="section-description">
+        <p>Eight years traversing the molecular foundations of disease while learning to see patients, not just data. The dual degree was about learning to translate between languages: the molecular and the clinical.</p>
+        <p>My dissertation explored the <em>network architecture of cancer</em>—how patterns of gene expression could predict survival in glioblastoma.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="crane" class="connection-chip">CRANE Algorithm</a>
+        <a href="#" data-target="ayurveda" class="connection-chip">Ayurveda</a>
+        <a href="#" data-target="sensei" class="connection-chip">Sensei CMO</a>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="research" data-node="crane">
+      <div class="section-domain">Research &amp; Academia</div>
+      <div class="section-period">PLOS Computational Biology · 2013</div>
+      <h2 class="section-title">Network Signatures of Survival</h2>
+      <div class="section-description">
+        <p>My first major publication. CRANE (Combinatorially dysRegulated subNEtworks) found patterns in protein-protein interaction networks that predict patient outcomes.</p>
+        <p>A 50-gene "subnetwork signature" achieved <em>80% accuracy</em> in predicting glioblastoma survival—and translated to protein-level changes 6.5× better than traditional approaches.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="network-thinking" class="connection-chip">Network Thinking</a>
+        <a href="#" data-target="explorys" class="connection-chip">EHR Mining</a>
+        <a href="#" data-target="phronos" class="connection-chip">Phronos</a>
+      </div>
+    </section>
+
+    <!-- CHAPTER II -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter II</div>
+      <h2 class="chapter-title">Data at Scale</h2>
+    </div>
+
+    <section class="section-card" data-domain="data-science" data-node="explorys">
+      <div class="section-domain">Healthcare Data Science</div>
+      <div class="section-period">MetroHealth System · 2013–2015</div>
+      <h2 class="section-title">Population-Level EHR Mining</h2>
+      <div class="section-description">
+        <p>Healthcare data at scale. Using the Explorys platform, I learned to mine patterns from millions of de-identified patient records—detecting drug side effects, predicting adverse events.</p>
+        <p>This work showed that EHR data could reveal <em>multivariate pharmacosurveillance signals</em> invisible to traditional case reports.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="pieces" class="connection-chip">Pieces Tech</a>
+        <a href="#" data-target="cogitativo" class="connection-chip">Cogitativo</a>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="data-science" data-node="pieces">
+      <div class="section-domain">Healthcare Data Science</div>
+      <div class="section-period">Pieces Technologies · 2016–2019</div>
+      <h2 class="section-title">NLP for Healthcare Workflows</h2>
+      <div class="section-description">
+        <p>Leading cross-functional teams to build NLP pipelines that automate clinical documentation. Chart abstraction, annotation workflows, predictive modeling.</p>
+        <p>Here I learned that <em>technical sophistication means nothing if it doesn't fit the workflow</em>. Implementation is its own science.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="cogitativo" class="connection-chip">Cogitativo</a>
+        <a href="#" data-target="sensei" class="connection-chip">Sensei</a>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="data-science" data-node="cogitativo">
+      <div class="section-domain">Healthcare Data Science</div>
+      <div class="section-period">Cogitativo · 2019–2020</div>
+      <h2 class="section-title">ML for Payment Integrity</h2>
+      <div class="section-description">
+        <p>A mission-driven company serving 45+ million health plan members. Payment accuracy, low-value care detection, anomalous provider behavior.</p>
+        <p>The ethical dimension became visceral—<em>every algorithm has downstream consequences</em> for real patients and clinicians.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="sensei" class="connection-chip">Sensei</a>
+        <a href="#" data-target="behavior-change" class="connection-chip">Behavior Change</a>
+      </div>
+    </section>
+
+    <!-- CHAPTER III -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter III</div>
+      <h2 class="chapter-title">Wellness &amp; Longevity</h2>
+    </div>
+
+    <section class="section-card" data-domain="wellness" data-node="ayurveda">
+      <div class="section-domain">Wellness &amp; Longevity</div>
+      <div class="section-period">Gujarat Ayurved University</div>
+      <h2 class="section-title">Certificate in Ayurveda</h2>
+      <div class="section-description">
+        <p>A bridge between worlds. Ayurveda offered a framework for understanding constitution, imbalance, and restoration that complemented my Western training.</p>
+        <p>The key lesson: <em>ancient systems encode empirical wisdom</em> that modern science is only beginning to validate.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="sensei" class="connection-chip">Sensei</a>
+        <a href="#" data-target="phronos" class="connection-chip">Phronos</a>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="wellness" data-node="sensei">
+      <div class="section-domain">Wellness &amp; Longevity</div>
+      <div class="section-period">Sensei · 2020–2025</div>
+      <h2 class="section-title">From Research to President &amp; CMO</h2>
+      <div class="section-description">
+        <p>Five years building the scientific foundation for evidence-based luxury wellness. From Director of Research to President &amp; Chief Medical Officer.</p>
+        <p>The deepest lesson: <em>prescriptions don't work</em>. Behavior change requires meeting people where they are.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="loneliness" class="connection-chip">Loneliness Epidemic</a>
+        <a href="#" data-target="phronos" class="connection-chip">Phronos</a>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="wellness" data-node="loneliness">
+      <div class="section-domain">Wellness &amp; Longevity</div>
+      <div class="section-period">Research focus · 2022–present</div>
+      <h2 class="section-title">The Epidemic Among Elites</h2>
+      <div class="section-description">
+        <p>A counterintuitive discovery: ultra-high-net-worth individuals have <em>fewer</em> vulnerable social relationships than the general population.</p>
+        <p>Wealth doesn't protect against isolation—and isolation kills.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="phronos" class="connection-chip">Phronos</a>
+        <a href="#" data-target="behavior-change" class="connection-chip">Behavior Change</a>
+      </div>
+    </section>
+
+    <!-- CHAPTER IV -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter IV</div>
+      <h2 class="chapter-title">Cognition &amp; AI</h2>
+    </div>
+
+    <section class="section-card" data-domain="cognition" data-node="phronos">
+      <div class="section-domain">Cognition &amp; AI</div>
+      <div class="section-period">Founder · 2024–present</div>
+      <h2 class="section-title">Phronos: An Observatory for Human Cognition</h2>
+      <div class="section-description">
+        <p>The current chapter. Phronos is a cognitive assessment platform—a Public Benefit Corporation—measuring how AI interaction affects human thinking patterns.</p>
+        <p>The premise: tools for <em>cognitive fortification</em>, so we engage with AI consciously.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="network-thinking" class="connection-chip">Network Thinking</a>
+        <a href="#" data-target="ephemeral-labels" class="connection-chip">Ephemeral Labels</a>
+      </div>
+    </section>
+
+    <!-- CHAPTER V -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter V</div>
+      <h2 class="chapter-title">The Threads Beneath</h2>
+    </div>
+
+    <section class="section-card" data-domain="meta" data-node="network-thinking">
+      <div class="section-domain">Philosophy</div>
+      <div class="section-period">Foundational orientation · 2008–present</div>
+      <h2 class="section-title">Network Thinking</h2>
+      <div class="section-description">
+        <p>The thread that runs through everything. From cancer networks to EHR mining to cognitive phenotyping—I see systems where <em>configurations matter more than components</em>.</p>
+        <p>Networks are how I think.</p>
+      </div>
+      <div class="connections-label">Echoes across →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="crane" class="connection-chip">CRANE</a>
+        <a href="#" data-target="phronos" class="connection-chip">Phronos</a>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="meta" data-node="behavior-change">
+      <div class="section-domain">Philosophy</div>
+      <div class="section-period">Central insight · 2020–present</div>
+      <h2 class="section-title">Beyond Prescriptions</h2>
+      <div class="section-description">
+        <p>"Prescriptions don't work. Mostly, I'm just making you feel guilty for not listening."</p>
+        <p>Lasting change requires <em>meeting people where they are</em>—from information delivery to experience design.</p>
+      </div>
+      <div class="connections-label">Echoes across →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="sensei" class="connection-chip">Sensei</a>
+        <a href="#" data-target="phronos" class="connection-chip">Phronos</a>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="meta" data-node="ephemeral-labels">
+      <div class="section-domain">Philosophy</div>
+      <div class="section-period">Ongoing inquiry</div>
+      <h2 class="section-title">The Question Beneath It All</h2>
+      <div class="section-description">
+        <p><em>"How do we choose the labels by which to define ourselves—especially when the labels themselves are ephemeral?"</em></p>
+        <p>This connects rare diseases to rarefied luxury—every domain offers a different vantage on self-definition.</p>
+      </div>
+      <div class="connections-label">Echoes across →</div>
+      <div class="connections-scroll">
+        <a href="#" data-target="phronos" class="connection-chip">Phronos</a>
+        <a href="#" data-target="md-phd" class="connection-chip">MD/PhD</a>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <h3 class="footer-title">Continue the conversation</h3>
+    <div class="footer-links">
+      <a href="https://phronos.org" class="footer-link" target="_blank">Phronos.org</a>
+      <a href="https://linkedin.com/in/vishal-n-patel-md-phd" class="footer-link" target="_blank">LinkedIn</a>
+      <a href="https://scholar.google.com/citations?user=H96co2AAAAAJ" class="footer-link" target="_blank">Scholar</a>
+    </div>
+    <div class="footer-copyright">© 2025 Vishal Patel</div>
+  </footer>
+
+  <!-- ========================================
+       JAVASCRIPT
+  ======================================== -->
+  
+  <script>
+    // ===========================================
+    // DATA: Network nodes and edges
+    // ===========================================
+    
+    const nodes = [
+      { id: "hero", label: "VP", x: 150, y: 150, size: 12, domain: "meta", isCenter: true },
+      // Research cluster (upper left)
+      { id: "georgia-tech", label: "GT", x: 60, y: 70, size: 7, domain: "research" },
+      { id: "md-phd", label: "MD/PhD", x: 100, y: 50, size: 9, domain: "research" },
+      { id: "crane", label: "CRANE", x: 70, y: 120, size: 8, domain: "research" },
+      // Data science cluster (left)
+      { id: "explorys", label: "EHR", x: 50, y: 170, size: 7, domain: "data-science" },
+      { id: "pieces", label: "Pieces", x: 65, y: 220, size: 7, domain: "data-science" },
+      { id: "cogitativo", label: "Cog", x: 100, y: 250, size: 6, domain: "data-science" },
+      // Wellness cluster (right)
+      { id: "ayurveda", label: "Ayu", x: 220, y: 60, size: 6, domain: "wellness" },
+      { id: "sensei", label: "Sensei", x: 240, y: 120, size: 9, domain: "wellness" },
+      { id: "loneliness", label: "Lone", x: 260, y: 180, size: 6, domain: "wellness" },
+      // Cognition (bottom right)
+      { id: "phronos", label: "Phronos", x: 230, y: 240, size: 10, domain: "cognition" },
+      // Meta (bottom)
+      { id: "network-thinking", label: "Net", x: 150, y: 260, size: 8, domain: "meta" },
+      { id: "behavior-change", label: "Behav", x: 180, y: 280, size: 6, domain: "meta" },
+      { id: "ephemeral-labels", label: "Eph", x: 120, y: 280, size: 5, domain: "meta" }
+    ];
+
+    const edges = [
+      // From center
+      { source: "hero", target: "md-phd" },
+      { source: "hero", target: "sensei" },
+      { source: "hero", target: "phronos" },
+      { source: "hero", target: "network-thinking" },
+      // Research connections
+      { source: "georgia-tech", target: "md-phd" },
+      { source: "md-phd", target: "crane" },
+      { source: "md-phd", target: "ayurveda" },
+      { source: "crane", target: "explorys" },
+      { source: "crane", target: "network-thinking" },
+      // Data science chain
+      { source: "explorys", target: "pieces" },
+      { source: "pieces", target: "cogitativo" },
+      { source: "cogitativo", target: "sensei" },
+      // Wellness connections
+      { source: "ayurveda", target: "sensei" },
+      { source: "sensei", target: "loneliness" },
+      { source: "sensei", target: "phronos" },
+      { source: "loneliness", target: "phronos" },
+      // Cognition/Meta connections
+      { source: "phronos", target: "network-thinking" },
+      { source: "phronos", target: "ephemeral-labels" },
+      { source: "network-thinking", target: "behavior-change" },
+      { source: "behavior-change", target: "sensei" }
+    ];
+
+    const domainColors = {
+      "research": "#5e81ac",
+      "data-science": "#81a1c1",
+      "wellness": "#d4a574",
+      "cognition": "#4ecdc4",
+      "meta": "#a3be8c"
+    };
+
+    // ===========================================
+    // BUILD NETWORK SVG
+    // ===========================================
+    
+    const svg = document.getElementById('networkSvg');
+    const ns = "http://www.w3.org/2000/svg";
+
+    // Draw edges
+    edges.forEach(edge => {
+      const source = nodes.find(n => n.id === edge.source);
+      const target = nodes.find(n => n.id === edge.target);
+      
+      const path = document.createElementNS(ns, "path");
+      const midX = (source.x + target.x) / 2;
+      const midY = (source.y + target.y) / 2;
+      const dx = target.x - source.x;
+      const dy = target.y - source.y;
+      const cx = midX - dy * 0.15;
+      const cy = midY + dx * 0.15;
+      
+      path.setAttribute("d", `M ${source.x} ${source.y} Q ${cx} ${cy} ${target.x} ${target.y}`);
+      path.setAttribute("class", "edge");
+      path.dataset.source = edge.source;
+      path.dataset.target = edge.target;
+      svg.appendChild(path);
+    });
+
+    // Draw nodes
+    nodes.forEach(node => {
+      const g = document.createElementNS(ns, "g");
+      g.setAttribute("class", "node-group");
+      g.dataset.id = node.id;
+      g.setAttribute("transform", `translate(${node.x}, ${node.y})`);
+
+      // Glow
+      const glow = document.createElementNS(ns, "circle");
+      glow.setAttribute("class", "node-glow");
+      glow.setAttribute("r", node.size * 2.5);
+      glow.setAttribute("fill", domainColors[node.domain]);
+      g.appendChild(glow);
+
+      // Core
+      const core = document.createElementNS(ns, "circle");
+      core.setAttribute("class", "node-core");
+      core.setAttribute("r", node.size);
+      core.setAttribute("fill", domainColors[node.domain]);
+      g.appendChild(core);
+
+      // Label
+      const label = document.createElementNS(ns, "text");
+      label.setAttribute("class", "node-label");
+      label.setAttribute("y", node.size + 10);
+      label.textContent = node.label;
+      g.appendChild(label);
+
+      // Click handler
+      g.addEventListener('click', () => {
+        const section = document.querySelector(`[data-node="${node.id}"]`);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+
+      svg.appendChild(g);
+    });
+
+    // ===========================================
+    // SCROLL HANDLERS
+    // ===========================================
+    
+    const networkContainer = document.getElementById('networkContainer');
+    const siteTitle = document.getElementById('siteTitle');
+    const navIndicator = document.getElementById('navIndicator');
+    const scrollProgress = document.getElementById('scrollProgress');
+    const sections = document.querySelectorAll('.section-card');
+    const allSections = document.querySelectorAll('[data-node]');
+
+    let isCollapsed = false;
+    let currentNode = 'hero';
+
+    // Collapse network after scrolling past hero
+    function handleScroll() {
+      const scrollY = window.scrollY;
+      const heroHeight = document.getElementById('hero').offsetHeight;
+      const shouldCollapse = scrollY > heroHeight * 0.5;
+
+      if (shouldCollapse !== isCollapsed) {
+        isCollapsed = shouldCollapse;
+        networkContainer.classList.toggle('collapsed', isCollapsed);
+        siteTitle.classList.toggle('visible', isCollapsed);
+        navIndicator.classList.toggle('visible', isCollapsed);
+      }
+
+      // Update scroll progress
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollY / docHeight;
+      scrollProgress.style.transform = `scaleX(${progress})`;
+    }
+
+    // Update active node based on visible section
+    function updateActiveNode(nodeId) {
+      if (nodeId === currentNode) return;
+      currentNode = nodeId;
+
+      // Update node highlighting
+      document.querySelectorAll('.node-group').forEach(g => {
+        const isActive = g.dataset.id === nodeId;
+        g.classList.toggle('active', isActive);
+      });
+
+      // Update edge highlighting
+      document.querySelectorAll('.edge').forEach(edge => {
+        const isConnected = edge.dataset.source === nodeId || edge.dataset.target === nodeId;
+        edge.classList.toggle('highlighted', isConnected);
+      });
+    }
+
+    // Intersection observer for sections
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // Reveal animation
+        if (entry.isIntersecting && entry.target.classList.contains('section-card')) {
+          entry.target.classList.add('visible');
+        }
+
+        // Update active node
+        if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+          const nodeId = entry.target.dataset.node;
+          if (nodeId) {
+            updateActiveNode(nodeId);
+            
+            // Update nav indicator
+            const index = Array.from(allSections).indexOf(entry.target) + 1;
+            navIndicator.textContent = `${String(index).padStart(2, '0')} / ${String(allSections.length).padStart(2, '0')}`;
+          }
+        }
+      });
+    }, {
+      threshold: [0.1, 0.3, 0.5],
+      rootMargin: '-20% 0px -20% 0px'
+    });
+
+    allSections.forEach(section => sectionObserver.observe(section));
+    sections.forEach(section => sectionObserver.observe(section));
+
+    // Scroll listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial call
+
+    // ===========================================
+    // CONNECTION CHIP NAVIGATION
+    // ===========================================
+    
+    document.querySelectorAll('.connection-chip').forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetNode = chip.dataset.target;
+        const targetSection = document.querySelector(`[data-node="${targetNode}"]`);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // ===========================================
+    // NETWORK CONTAINER CLICK TO EXPAND/SCROLL
+    // ===========================================
+    
+    networkContainer.addEventListener('click', (e) => {
+      // Only handle clicks on the container itself when collapsed, not on nodes
+      if (isCollapsed && e.target === networkContainer) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  </script>
+
+</body>
+</html>

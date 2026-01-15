@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vishal Patel, MD PhD</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-deep: #06060a;
+      --bg-card: #0c0c12;
+      --bg-elevated: #12121a;
+      --bg-map: rgba(8, 8, 14, 0.88);
+      --accent-teal: #4ecdc4;
+      --accent-teal-bright: #6ee7df;
+      --accent-teal-dim: rgba(78, 205, 196, 0.15);
+      --accent-teal-glow: rgba(78, 205, 196, 0.4);
+      --accent-amber: #e8b88a;
+      --accent-amber-bright: #f5d4a8;
+      --accent-amber-dim: rgba(232, 184, 138, 0.15);
+      --accent-amber-glow: rgba(232, 184, 138, 0.4);
+      --accent-blue: #7ba3cc;
+      --accent-blue-bright: #9ec5eb;
+      --accent-purple: #a78bdb;
+      --text-primary: #f0eeeb;
+      --text-secondary: #a8a8a8;
+      --text-dim: #606068;
+      --domain-research: #7ba3cc;
+      --domain-research-glow: rgba(123, 163, 204, 0.5);
+      --domain-data: #9bbcd9;
+      --domain-data-glow: rgba(155, 188, 217, 0.5);
+      --domain-wellness: #e8b88a;
+      --domain-wellness-glow: rgba(232, 184, 138, 0.5);
+      --domain-cognition: #4ecdc4;
+      --domain-cognition-glow: rgba(78, 205, 196, 0.5);
+      --domain-meta: #a8d5a2;
+      --domain-meta-glow: rgba(168, 213, 162, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: 'Newsreader', Georgia, serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ========================================
+       AMBIENT BACKGROUND - Gradient Orbs
+    ======================================== */
+    
+    .ambient-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-teal-glow) 0%, transparent 70%);
+      top: -200px;
+      right: -200px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--accent-amber-glow) 0%, transparent 70%);
+      bottom: 20%;
+      left: -150px;
+      animation-delay: -7s;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(167, 139, 219, 0.3) 0%, transparent 70%);
+      top: 50%;
+      right: 10%;
+      animation-delay: -14s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      25% {
+        transform: translate(30px, -20px) scale(1.05);
+      }
+      50% {
+        transform: translate(-20px, 30px) scale(0.95);
+      }
+      75% {
+        transform: translate(-30px, -10px) scale(1.02);
+      }
+    }
+
+    /* ========================================
+       NETWORK MAP - Floating Corner
+    ======================================== */
+    
+    .network-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 100;
+      pointer-events: none;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .network-container.collapsed {
+      width: 160px;
+      height: 160px;
+      top: 1rem;
+      right: 1rem;
+      left: auto;
+      border-radius: 12px;
+      background: var(--bg-map);
+      border: 1px solid rgba(78, 205, 196, 0.2);
+      backdrop-filter: blur(20px);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 0 60px rgba(78, 205, 196, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+      .network-container.collapsed {
+        width: 220px;
+        height: 220px;
+        top: 1.5rem;
+        right: 1.5rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .network-container.collapsed {
+        width: 300px;
+        height: 300px;
+        top: 2rem;
+        right: 2rem;
+      }
+    }
+
+    .network-svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.5;
+      transition: opacity 0.4s ease;
+    }
+
+    .network-container.collapsed .network-svg {
+      opacity: 1;
+    }
+
+    /* Network elements */
+    .edge {
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 1;
+      fill: none;
+      transition: all 0.4s ease;
+    }
+
+    .edge.highlighted {
+      stroke: var(--accent-teal);
+      stroke-opacity: 0.5;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 4px var(--accent-teal-glow));
+    }
+
+    .node-group {
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .node-glow {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      filter: blur(8px);
+    }
+
+    .node-group.active .node-glow {
+      opacity: 0.7;
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    .node-core {
+      opacity: 0.5;
+      transition: all 0.4s ease;
+    }
+
+    .node-group.active .node-core {
+      opacity: 1;
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .node-group:hover .node-core {
+      opacity: 0.8;
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+
+    .node-inner {
+      opacity: 0.3;
+      transition: opacity 0.4s ease;
+    }
+
+    .node-group.active .node-inner {
+      opacity: 0.6;
+    }
+
+    .node-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7px;
+      fill: var(--text-dim);
+      text-anchor: middle;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .network-container.collapsed .node-label {
+      opacity: 0.8;
+    }
+
+    .node-group.active .node-label {
+      opacity: 1;
+      fill: var(--text-primary);
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
+    }
+
+    /* Expand hint */
+    .network-expand-hint {
+      position: absolute;
+      bottom: 0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .network-container.collapsed:hover .network-expand-hint {
+      opacity: 1;
+    }
+
+    /* ========================================
+       HEADER
+    ======================================== */
+    
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    .header > * {
+      pointer-events: auto;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .site-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.4s ease;
+      text-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    .site-title.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .nav-indicator {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--accent-teal);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      text-shadow: 0 0 10px var(--accent-teal-glow);
+    }
+
+    .nav-indicator.visible {
+      opacity: 1;
+    }
+
+    /* ========================================
+       HERO SECTION
+    ======================================== */
+    
+    .hero {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem 1.5rem 4rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 560px;
+    }
+
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      margin-bottom: 1.25rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards 0.3s;
+      text-shadow: 0 0 20px var(--accent-teal-glow);
+    }
+
+    .hero-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(2.75rem, 11vw, 4.5rem);
+      font-weight: 400;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.8s ease forwards 0.5s;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-title span {
+      display: block;
+      font-size: 0.45em;
+      font-style: italic;
+      margin-top: 0.5rem;
+      background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-dim) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-intro {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards 0.7s;
+      line-height: 1.7;
+    }
+
+    .hero-scroll {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .hero-scroll-line {
+      width: 48px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent-teal), transparent);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-scroll-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent-teal-bright), transparent);
+      animation: shimmer 2s ease-in-out infinite;
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+
+    /* ========================================
+       CONTENT SECTIONS
+    ======================================== */
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 10;
+    }
+
+    .section-card {
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 6rem 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .section-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 1.5rem;
+      right: 1.5rem;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    }
+
+    .section-domain {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-domain::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px currentColor;
+      animation: domainPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes domainPulse {
+      0%, 100% { box-shadow: 0 0 8px currentColor; }
+      50% { box-shadow: 0 0 16px currentColor, 0 0 24px currentColor; }
+    }
+
+    .section-card[data-domain="research"] .section-domain { color: var(--domain-research); }
+    .section-card[data-domain="research"] .section-domain::before { background: var(--domain-research); }
+    
+    .section-card[data-domain="data-science"] .section-domain { color: var(--domain-data); }
+    .section-card[data-domain="data-science"] .section-domain::before { background: var(--domain-data); }
+    
+    .section-card[data-domain="wellness"] .section-domain { color: var(--domain-wellness); }
+    .section-card[data-domain="wellness"] .section-domain::before { background: var(--domain-wellness); }
+    
+    .section-card[data-domain="cognition"] .section-domain { color: var(--domain-cognition); }
+    .section-card[data-domain="cognition"] .section-domain::before { background: var(--domain-cognition); }
+    
+    .section-card[data-domain="meta"] .section-domain { color: var(--domain-meta); }
+    .section-card[data-domain="meta"] .section-domain::before { background: var(--domain-meta); }
+
+    .section-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(1.85rem, 7vw, 2.75rem);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      max-width: 640px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-description {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin-bottom: 2rem;
+      line-height: 1.75;
+    }
+
+    .section-description p {
+      margin-bottom: 1rem;
+    }
+
+    .section-description em {
+      color: var(--text-primary);
+      font-style: italic;
+      text-shadow: 0 0 20px rgba(255,255,255,0.1);
+    }
+
+    /* Connections */
+    .connections-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .connections-scroll {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      margin: 0 -1.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .connections-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .connection-chip {
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.65rem 1.1rem;
+      background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .connection-chip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-teal-dim) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .connection-chip:hover::before,
+    .connection-chip:active::before {
+      opacity: 1;
+    }
+
+    .connection-chip:hover,
+    .connection-chip:active {
+      border-color: var(--accent-teal);
+      color: var(--accent-teal);
+      box-shadow: 0 0 20px var(--accent-teal-dim), 0 4px 12px rgba(0,0,0,0.3);
+      transform: translateY(-2px);
+    }
+
+    /* ========================================
+       CHAPTER DIVIDERS
+    ======================================== */
+    
+    .chapter-divider {
+      min-height: 35vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+    }
+
+    .chapter-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--accent-teal);
+      margin-bottom: 1rem;
+      text-shadow: 0 0 15px var(--accent-teal-glow);
+    }
+
+    .chapter-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(1.5rem, 6vw, 2.25rem);
+      font-weight: 400;
+      font-style: italic;
+      background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-dim) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ========================================
+       FOOTER
+    ======================================== */
+    
+    .footer {
+      padding: 5rem 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(78, 205, 196, 0.3), transparent);
+    }
+
+    .footer-title {
+      font-family: 'Newsreader', serif;
+      font-size: 1.5rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 0.6rem 1.25rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer-link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-teal-dim) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .footer-link:hover::before {
+      opacity: 1;
+    }
+
+    .footer-link:hover {
+      color: var(--accent-teal);
+      border-color: var(--accent-teal);
+      box-shadow: 0 0 20px var(--accent-teal-dim);
+    }
+
+    .footer-copyright {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+    }
+
+    /* ========================================
+       RESPONSIVE ADJUSTMENTS
+    ======================================== */
+    
+    @media (min-width: 768px) {
+      .hero {
+        padding: 4rem 3rem 6rem;
+      }
+
+      .section-card {
+        padding: 8rem 3rem 5rem;
+      }
+
+      .connections-scroll {
+        margin: 0 -3rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
+      }
+
+      .hero-intro,
+      .section-description {
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hero {
+        padding: 6rem 6rem 8rem;
+      }
+
+      .section-card {
+        padding: 10rem 6rem 6rem;
+        padding-right: 360px; /* Space for floating map */
+      }
+
+      .connections-scroll {
+        margin: 0;
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .orb-1 {
+        width: 800px;
+        height: 800px;
+      }
+      
+      .orb-2 {
+        width: 600px;
+        height: 600px;
+      }
+    }
+
+    /* ========================================
+       GRAIN OVERLAY
+    ======================================== */
+    
+    .grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ========================================
+       SCROLL PROGRESS
+    ======================================== */
+    
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-teal), var(--accent-teal-bright));
+      box-shadow: 0 0 10px var(--accent-teal-glow), 0 0 20px var(--accent-teal-dim);
+      z-index: 10000;
+      transform-origin: left;
+      transform: scaleX(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="grain"></div>
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Ambient Background Orbs -->
+  <div class="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="site-title" id="siteTitle">V. Patel</div>
+      <div class="nav-indicator" id="navIndicator">01 / 14</div>
+    </div>
+  </header>
+
+  <!-- Network Map Container -->
+  <div class="network-container" id="networkContainer">
+    <svg class="network-svg" id="networkSvg" viewBox="0 0 300 300"></svg>
+    <div class="network-expand-hint">Click to expand</div>
+  </div>
+
+  <!-- ========================================
+       HERO
+  ======================================== -->
+  
+  <section class="hero" id="hero" data-node="hero">
+    <div class="hero-content">
+      <div class="hero-label">The Recursive Embedding of a Life</div>
+      <h1 class="hero-title">
+        Vishal Patel
+        <span>MD, PhD</span>
+      </h1>
+      <p class="hero-intro">
+        I search for hidden patterns in wellness &amp; illness—and how those patterns change when we intersect with information technologies.
+      </p>
+      <div class="hero-scroll">
+        <div class="hero-scroll-line"></div>
+        <span>Scroll to explore</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================
+       CONTENT (Reverse Chronological)
+  ======================================== -->
+  
+  <div class="content-wrapper">
+
+    <!-- CHAPTER I: NOW -->
+    <div class="chapter-divider">
+      <div class="chapter-number">I · Now</div>
+      <h2 class="chapter-title">Cognition &amp; AI</h2>
+    </div>
+
+    <section class="section-card" data-domain="cognition" data-node="phronos">
+      <div class="section-domain">Cognition &amp; AI</div>
+      <div class="section-period">Founder · 2024–present</div>
+      <h2 class="section-title">Phronos: An Observatory for Human Cognition</h2>
+      <div class="section-description">
+        <p>The current chapter. Phronos is a cognitive assessment platform—a Public Benefit Corporation—measuring how AI interaction affects human thinking patterns.</p>
+        <p>The premise: tools for <em>cognitive fortification</em>, so we engage with AI consciously. The method: LLM-based conversational assessments that phenotype cognition at scale.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="sensei">Sensei</span>
+        <span class="connection-chip" data-target="network-thinking">Network Thinking</span>
+        <span class="connection-chip" data-target="crane">CRANE</span>
+      </div>
+    </section>
+
+    <!-- CHAPTER II: WELLNESS ERA -->
+    <div class="chapter-divider">
+      <div class="chapter-number">II · 2020–2025</div>
+      <h2 class="chapter-title">Wellness &amp; Longevity</h2>
+    </div>
+
+    <section class="section-card" data-domain="wellness" data-node="sensei">
+      <div class="section-domain">Wellness &amp; Longevity</div>
+      <div class="section-period">Sensei · 2020–2025</div>
+      <h2 class="section-title">From Research to President &amp; CMO</h2>
+      <div class="section-description">
+        <p>Five years building the scientific foundation for evidence-based luxury wellness. From Director of Research to President &amp; Chief Medical Officer to Chief Science &amp; Innovation Officer.</p>
+        <p>The deepest lesson: <em>prescriptions don't work</em>. Behavior change requires meeting people where they are—and that requires understanding who they are.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="cogitativo">Cogitativo</span>
+        <span class="connection-chip" data-target="ayurveda">Ayurveda</span>
+        <span class="connection-chip" data-target="md-phd">MD/PhD</span>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="wellness" data-node="loneliness">
+      <div class="section-domain">Wellness &amp; Longevity</div>
+      <div class="section-period">Research focus · 2022–present</div>
+      <h2 class="section-title">The Epidemic Among Elites</h2>
+      <div class="section-description">
+        <p>A counterintuitive discovery: ultra-high-net-worth individuals have <em>fewer</em> vulnerable social relationships than the general population. Loneliness as a health risk factor became central to my thinking.</p>
+        <p>Wealth doesn't protect against isolation—and isolation kills.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="sensei">Sensei</span>
+        <span class="connection-chip" data-target="ephemeral-labels">Ephemeral Labels</span>
+      </div>
+    </section>
+
+    <!-- CHAPTER III: DATA SCIENCE ERA -->
+    <div class="chapter-divider">
+      <div class="chapter-number">III · 2015–2020</div>
+      <h2 class="chapter-title">Healthcare Data Science</h2>
+    </div>
+
+    <section class="section-card" data-domain="data-science" data-node="cogitativo">
+      <div class="section-domain">Healthcare Data Science</div>
+      <div class="section-period">Cogitativo · 2019–2020</div>
+      <h2 class="section-title">ML for Payment Integrity</h2>
+      <div class="section-description">
+        <p>A mission-driven company serving 45+ million health plan members. Payment accuracy, low-value care detection, anomalous provider behavior.</p>
+        <p>The ethical dimension became visceral—<em>every algorithm has downstream consequences</em> for real patients and clinicians.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="pieces">Pieces Tech</span>
+        <span class="connection-chip" data-target="explorys">EHR Mining</span>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="data-science" data-node="pieces">
+      <div class="section-domain">Healthcare Data Science</div>
+      <div class="section-period">Pieces Technologies · 2016–2019</div>
+      <h2 class="section-title">NLP for Healthcare Workflows</h2>
+      <div class="section-description">
+        <p>Leading cross-functional teams to build NLP pipelines that automate clinical documentation. Chart abstraction, annotation workflows, predictive modeling.</p>
+        <p>Here I learned that <em>technical sophistication means nothing if it doesn't fit the workflow</em>. Implementation is its own science.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="explorys">EHR Mining</span>
+        <span class="connection-chip" data-target="crane">CRANE</span>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="data-science" data-node="explorys">
+      <div class="section-domain">Healthcare Data Science</div>
+      <div class="section-period">MetroHealth System · 2013–2015</div>
+      <h2 class="section-title">Population-Level EHR Mining</h2>
+      <div class="section-description">
+        <p>Healthcare data at scale. Using the Explorys platform, I learned to mine patterns from millions of de-identified patient records—detecting drug side effects, predicting adverse events.</p>
+        <p>This work showed that EHR data could reveal <em>multivariate pharmacosurveillance signals</em> invisible to traditional case reports.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="crane">CRANE</span>
+        <span class="connection-chip" data-target="md-phd">MD/PhD</span>
+      </div>
+    </section>
+
+    <!-- CHAPTER IV: TRAINING ERA -->
+    <div class="chapter-divider">
+      <div class="chapter-number">IV · 2001–2013</div>
+      <h2 class="chapter-title">Foundations</h2>
+    </div>
+
+    <section class="section-card" data-domain="research" data-node="crane">
+      <div class="section-domain">Research &amp; Academia</div>
+      <div class="section-period">PLOS Computational Biology · 2013</div>
+      <h2 class="section-title">Network Signatures of Survival</h2>
+      <div class="section-description">
+        <p>My first major publication. CRANE (Combinatorially dysRegulated subNEtworks) found patterns in protein-protein interaction networks that predict patient outcomes.</p>
+        <p>A 50-gene "subnetwork signature" achieved <em>80% accuracy</em> in predicting glioblastoma survival—and translated to protein-level changes 6.5× better than traditional approaches.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="md-phd">MD/PhD</span>
+        <span class="connection-chip" data-target="network-thinking">Network Thinking</span>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="research" data-node="md-phd">
+      <div class="section-domain">Research &amp; Academia</div>
+      <div class="section-period">Case Western Reserve University · 2005–2013</div>
+      <h2 class="section-title">MD &amp; PhD in Genetics</h2>
+      <div class="section-description">
+        <p>Eight years traversing the molecular foundations of disease while learning to see patients, not just data. The dual degree was about learning to translate between languages: the molecular and the clinical.</p>
+        <p>My dissertation explored the <em>network architecture of cancer</em>—how patterns of gene expression could predict survival in glioblastoma.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="georgia-tech">Georgia Tech</span>
+        <span class="connection-chip" data-target="ayurveda">Ayurveda</span>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="wellness" data-node="ayurveda">
+      <div class="section-domain">Integrative Medicine</div>
+      <div class="section-period">Gujarat Ayurved University</div>
+      <h2 class="section-title">Certificate in Ayurveda</h2>
+      <div class="section-description">
+        <p>A bridge between worlds. Ayurveda offered a framework for understanding constitution, imbalance, and restoration that complemented my Western training.</p>
+        <p>The key lesson: <em>ancient systems encode empirical wisdom</em> that modern science is only beginning to validate.</p>
+      </div>
+      <div class="connections-label">Threads back →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="md-phd">MD/PhD</span>
+        <span class="connection-chip" data-target="georgia-tech">Georgia Tech</span>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="research" data-node="georgia-tech">
+      <div class="section-domain">Engineering</div>
+      <div class="section-period">Georgia Institute of Technology · 2001–2005</div>
+      <h2 class="section-title">BS Mechanical Engineering</h2>
+      <div class="section-description">
+        <p>Before medicine, engineering. The quantitative foundations—thermodynamics, systems analysis, computational methods—that would later shape how I approach biological and behavioral complexity.</p>
+        <p>Engineers ask: <em>how do we model this system? How do we intervene?</em> These questions never left me.</p>
+      </div>
+      <div class="connections-label">Threads forward →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="md-phd">MD/PhD</span>
+        <span class="connection-chip" data-target="network-thinking">Network Thinking</span>
+      </div>
+    </section>
+
+    <!-- CHAPTER V: META -->
+    <div class="chapter-divider">
+      <div class="chapter-number">V · Always</div>
+      <h2 class="chapter-title">The Threads Beneath</h2>
+    </div>
+
+    <section class="section-card" data-domain="meta" data-node="network-thinking">
+      <div class="section-domain">Philosophy</div>
+      <div class="section-period">Foundational orientation · 2008–present</div>
+      <h2 class="section-title">Network Thinking</h2>
+      <div class="section-description">
+        <p>The thread that runs through everything. From cancer networks to EHR mining to cognitive phenotyping—I see systems where <em>configurations matter more than components</em>.</p>
+        <p>Networks are how I think.</p>
+      </div>
+      <div class="connections-label">Echoes across →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="crane">CRANE</span>
+        <span class="connection-chip" data-target="phronos">Phronos</span>
+        <span class="connection-chip" data-target="explorys">EHR Mining</span>
+      </div>
+    </section>
+
+    <section class="section-card" data-domain="meta" data-node="ephemeral-labels">
+      <div class="section-domain">Philosophy</div>
+      <div class="section-period">Ongoing inquiry</div>
+      <h2 class="section-title">The Question Beneath It All</h2>
+      <div class="section-description">
+        <p><em>"How do we choose the labels by which to define ourselves—especially when the labels themselves are ephemeral?"</em></p>
+        <p>This connects rare diseases to rarefied luxury—every domain offers a different vantage on self-definition.</p>
+      </div>
+      <div class="connections-label">Echoes across →</div>
+      <div class="connections-scroll">
+        <span class="connection-chip" data-target="phronos">Phronos</span>
+        <span class="connection-chip" data-target="loneliness">UHNW Health</span>
+        <span class="connection-chip" data-target="md-phd">MD/PhD</span>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <h3 class="footer-title">Continue the conversation</h3>
+    <div class="footer-links">
+      <a href="https://phronos.org" class="footer-link" target="_blank">Phronos.org</a>
+      <a href="https://linkedin.com/in/vishal-n-patel-md-phd" class="footer-link" target="_blank">LinkedIn</a>
+      <a href="https://scholar.google.com/citations?user=H96co2AAAAAJ" class="footer-link" target="_blank">Scholar</a>
+    </div>
+    <div class="footer-copyright">© 2025 Vishal Patel</div>
+  </footer>
+
+  <!-- ========================================
+       JAVASCRIPT
+  ======================================== -->
+  
+  <script>
+    // ===========================================
+    // DATA: Network nodes and edges
+    // ===========================================
+    
+    const nodes = [
+      { id: "hero", label: "VP", x: 150, y: 150, size: 14, domain: "meta", isCenter: true },
+      // Current (top)
+      { id: "phronos", label: "Phronos", x: 150, y: 50, size: 11, domain: "cognition" },
+      // Wellness (right)
+      { id: "sensei", label: "Sensei", x: 240, y: 100, size: 10, domain: "wellness" },
+      { id: "loneliness", label: "UHNW", x: 270, y: 160, size: 7, domain: "wellness" },
+      { id: "ayurveda", label: "Ayu", x: 250, y: 220, size: 6, domain: "wellness" },
+      // Data science (left)
+      { id: "cogitativo", label: "Cog", x: 60, y: 100, size: 7, domain: "data-science" },
+      { id: "pieces", label: "Pieces", x: 40, y: 160, size: 7, domain: "data-science" },
+      { id: "explorys", label: "EHR", x: 50, y: 220, size: 7, domain: "data-science" },
+      // Research (bottom)
+      { id: "crane", label: "CRANE", x: 100, y: 260, size: 8, domain: "research" },
+      { id: "md-phd", label: "MD/PhD", x: 150, y: 280, size: 10, domain: "research" },
+      { id: "georgia-tech", label: "GT", x: 200, y: 260, size: 7, domain: "research" },
+      // Meta (scattered)
+      { id: "network-thinking", label: "Net", x: 220, y: 50, size: 8, domain: "meta" },
+      { id: "ephemeral-labels", label: "Eph", x: 80, y: 50, size: 6, domain: "meta" }
+    ];
+
+    const edges = [
+      // From center
+      { source: "hero", target: "phronos" },
+      { source: "hero", target: "sensei" },
+      { source: "hero", target: "md-phd" },
+      { source: "hero", target: "network-thinking" },
+      // Phronos connections
+      { source: "phronos", target: "sensei" },
+      { source: "phronos", target: "network-thinking" },
+      { source: "phronos", target: "crane" },
+      { source: "phronos", target: "ephemeral-labels" },
+      // Wellness chain
+      { source: "sensei", target: "loneliness" },
+      { source: "sensei", target: "ayurveda" },
+      { source: "sensei", target: "cogitativo" },
+      { source: "loneliness", target: "ephemeral-labels" },
+      // Data science chain
+      { source: "cogitativo", target: "pieces" },
+      { source: "pieces", target: "explorys" },
+      { source: "explorys", target: "crane" },
+      // Research connections
+      { source: "crane", target: "md-phd" },
+      { source: "crane", target: "network-thinking" },
+      { source: "md-phd", target: "georgia-tech" },
+      { source: "md-phd", target: "ayurveda" },
+      { source: "georgia-tech", target: "network-thinking" }
+    ];
+
+    const domainColors = {
+      "research": "#7ba3cc",
+      "data-science": "#9bbcd9",
+      "wellness": "#e8b88a",
+      "cognition": "#4ecdc4",
+      "meta": "#a8d5a2"
+    };
+
+    const domainGlows = {
+      "research": "rgba(123, 163, 204, 0.6)",
+      "data-science": "rgba(155, 188, 217, 0.6)",
+      "wellness": "rgba(232, 184, 138, 0.6)",
+      "cognition": "rgba(78, 205, 196, 0.6)",
+      "meta": "rgba(168, 213, 162, 0.6)"
+    };
+
+    // ===========================================
+    // BUILD NETWORK SVG
+    // ===========================================
+    
+    const svg = document.getElementById('networkSvg');
+    const ns = "http://www.w3.org/2000/svg";
+
+    // Add defs for gradients and filters
+    const defs = document.createElementNS(ns, "defs");
+    
+    // Glow filter
+    const glowFilter = document.createElementNS(ns, "filter");
+    glowFilter.setAttribute("id", "glow");
+    glowFilter.setAttribute("x", "-50%");
+    glowFilter.setAttribute("y", "-50%");
+    glowFilter.setAttribute("width", "200%");
+    glowFilter.setAttribute("height", "200%");
+    
+    const feGaussianBlur = document.createElementNS(ns, "feGaussianBlur");
+    feGaussianBlur.setAttribute("stdDeviation", "3");
+    feGaussianBlur.setAttribute("result", "coloredBlur");
+    glowFilter.appendChild(feGaussianBlur);
+    
+    const feMerge = document.createElementNS(ns, "feMerge");
+    const feMergeNode1 = document.createElementNS(ns, "feMergeNode");
+    feMergeNode1.setAttribute("in", "coloredBlur");
+    const feMergeNode2 = document.createElementNS(ns, "feMergeNode");
+    feMergeNode2.setAttribute("in", "SourceGraphic");
+    feMerge.appendChild(feMergeNode1);
+    feMerge.appendChild(feMergeNode2);
+    glowFilter.appendChild(feMerge);
+    
+    defs.appendChild(glowFilter);
+    svg.appendChild(defs);
+
+    // Draw edges
+    edges.forEach(edge => {
+      const source = nodes.find(n => n.id === edge.source);
+      const target = nodes.find(n => n.id === edge.target);
+      
+      const path = document.createElementNS(ns, "path");
+      const midX = (source.x + target.x) / 2;
+      const midY = (source.y + target.y) / 2;
+      const dx = target.x - source.x;
+      const dy = target.y - source.y;
+      const cx = midX - dy * 0.12;
+      const cy = midY + dx * 0.12;
+      
+      path.setAttribute("d", `M ${source.x} ${source.y} Q ${cx} ${cy} ${target.x} ${target.y}`);
+      path.setAttribute("class", "edge");
+      path.dataset.source = edge.source;
+      path.dataset.target = edge.target;
+      svg.appendChild(path);
+    });
+
+    // Draw nodes
+    nodes.forEach(node => {
+      const g = document.createElementNS(ns, "g");
+      g.setAttribute("class", "node-group");
+      g.dataset.id = node.id;
+      g.setAttribute("transform", `translate(${node.x}, ${node.y})`);
+
+      // Outer glow
+      const glow = document.createElementNS(ns, "circle");
+      glow.setAttribute("class", "node-glow");
+      glow.setAttribute("r", node.size * 2.5);
+      glow.setAttribute("fill", domainGlows[node.domain]);
+      g.appendChild(glow);
+
+      // Core with gradient effect
+      const core = document.createElementNS(ns, "circle");
+      core.setAttribute("class", "node-core");
+      core.setAttribute("r", node.size);
+      core.setAttribute("fill", domainColors[node.domain]);
+      core.style.color = domainColors[node.domain];
+      g.appendChild(core);
+
+      // Inner highlight
+      const inner = document.createElementNS(ns, "circle");
+      inner.setAttribute("class", "node-inner");
+      inner.setAttribute("r", node.size * 0.5);
+      inner.setAttribute("fill", "white");
+      inner.setAttribute("cy", -node.size * 0.2);
+      g.appendChild(inner);
+
+      // Label
+      const label = document.createElementNS(ns, "text");
+      label.setAttribute("class", "node-label");
+      label.setAttribute("y", node.size + 12);
+      label.textContent = node.label;
+      g.appendChild(label);
+
+      // Click handler
+      g.addEventListener('click', () => {
+        const section = document.querySelector(`[data-node="${node.id}"]`);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+
+      svg.appendChild(g);
+    });
+
+    // ===========================================
+    // SCROLL HANDLERS
+    // ===========================================
+    
+    const networkContainer = document.getElementById('networkContainer');
+    const siteTitle = document.getElementById('siteTitle');
+    const navIndicator = document.getElementById('navIndicator');
+    const scrollProgress = document.getElementById('scrollProgress');
+    const sections = document.querySelectorAll('.section-card');
+    const allSections = document.querySelectorAll('[data-node]');
+
+    let isCollapsed = false;
+    let currentNode = 'hero';
+
+    // Collapse network after scrolling past hero
+    function handleScroll() {
+      const scrollY = window.scrollY;
+      const heroHeight = document.getElementById('hero').offsetHeight;
+      const shouldCollapse = scrollY > heroHeight * 0.5;
+
+      if (shouldCollapse !== isCollapsed) {
+        isCollapsed = shouldCollapse;
+        networkContainer.classList.toggle('collapsed', isCollapsed);
+        siteTitle.classList.toggle('visible', isCollapsed);
+        navIndicator.classList.toggle('visible', isCollapsed);
+      }
+
+      // Update scroll progress
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollY / docHeight;
+      scrollProgress.style.transform = `scaleX(${progress})`;
+    }
+
+    // Update active node based on visible section
+    function updateActiveNode(nodeId) {
+      if (nodeId === currentNode) return;
+      currentNode = nodeId;
+
+      // Update node highlighting
+      document.querySelectorAll('.node-group').forEach(g => {
+        const isActive = g.dataset.id === nodeId;
+        g.classList.toggle('active', isActive);
+      });
+
+      // Update edge highlighting
+      document.querySelectorAll('.edge').forEach(edge => {
+        const isConnected = edge.dataset.source === nodeId || edge.dataset.target === nodeId;
+        edge.classList.toggle('highlighted', isConnected);
+      });
+    }
+
+    // Intersection observer for sections
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // Reveal animation
+        if (entry.isIntersecting && entry.target.classList.contains('section-card')) {
+          entry.target.classList.add('visible');
+        }
+
+        // Update active node
+        if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+          const nodeId = entry.target.dataset.node;
+          if (nodeId) {
+            updateActiveNode(nodeId);
+            
+            // Update nav indicator
+            const index = Array.from(allSections).indexOf(entry.target) + 1;
+            navIndicator.textContent = `${String(index).padStart(2, '0')} / ${String(allSections.length).padStart(2, '0')}`;
+          }
+        }
+      });
+    }, {
+      threshold: [0.1, 0.3, 0.5],
+      rootMargin: '-20% 0px -20% 0px'
+    });
+
+    allSections.forEach(section => sectionObserver.observe(section));
+    sections.forEach(section => sectionObserver.observe(section));
+
+    // Scroll listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial call
+
+    // ===========================================
+    // CONNECTION CHIP NAVIGATION
+    // ===========================================
+    
+    document.querySelectorAll('.connection-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const targetNode = chip.dataset.target;
+        const targetSection = document.querySelector(`[data-node="${targetNode}"]`);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // ===========================================
+    // NETWORK CONTAINER CLICK TO EXPAND/SCROLL
+    // ===========================================
+    
+    networkContainer.addEventListener('click', (e) => {
+      if (isCollapsed && e.target === networkContainer) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  </script>
+
+</body>
+</html>

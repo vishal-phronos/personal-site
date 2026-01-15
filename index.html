@@ -1,0 +1,2485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vishal Patel, MD PhD</title>
+  <meta name="description" content="Connecting the dots in wellness & illness | Data | Science | Technology">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Vishal Patel, MD PhD">
+  <meta property="og:description" content="Connecting the dots in wellness & illness | Data | Science | Technology">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vishalpatelmdphd.com">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+
+  <!-- D3.js for force-directed graph -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <style>
+    :root {
+      --bg-deep: #08080c;
+      --bg-card: #0e0e14;
+      --bg-elevated: #14141c;
+      --bg-map: rgba(8, 8, 12, 0.92);
+      --accent-teal: #4ecdc4;
+      --accent-teal-dim: rgba(78, 205, 196, 0.12);
+      --accent-amber: #d4a574;
+      --accent-amber-dim: rgba(212, 165, 116, 0.15);
+      --text-primary: #e8e6e3;
+      --text-secondary: #9a9a9a;
+      --text-dim: #5a5a5a;
+      --domain-research: #5e81ac;
+      --domain-data: #81a1c1;
+      --domain-wellness: #d4a574;
+      --domain-cognition: #4ecdc4;
+      --domain-meta: #a3be8c;
+      --domain-education: #b48ead;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: 'Newsreader', Georgia, serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ========================================
+       AMBIENT BACKGROUND
+    ======================================== */
+
+    .ambient-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .ambient-orb:nth-child(1) {
+      width: 400px;
+      height: 400px;
+      background: var(--domain-cognition);
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .ambient-orb:nth-child(2) {
+      width: 300px;
+      height: 300px;
+      background: var(--domain-wellness);
+      bottom: 20%;
+      left: -50px;
+      animation-delay: -7s;
+    }
+
+    .ambient-orb:nth-child(3) {
+      width: 350px;
+      height: 350px;
+      background: var(--domain-research);
+      top: 40%;
+      right: -100px;
+      animation-delay: -14s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(20px, 30px) scale(1.02); }
+    }
+
+    /* ========================================
+       NETWORK MAP
+    ======================================== */
+
+    .network-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 100;
+      pointer-events: none;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* On mobile, constrain network to upper portion (above hero content at 38%) */
+    @media (max-width: 767px) {
+      .network-container:not(.collapsed) {
+        height: 36%;
+      }
+    }
+
+    /* Position network so hub aligns with portrait center */
+    .network-container:not(.collapsed) .network-svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .network-container.collapsed {
+      position: fixed;
+      width: 45vw;
+      height: 45vh;
+      top: auto;
+      bottom: 1rem;
+      right: 1rem;
+      left: auto;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    @media (max-width: 767px) {
+      .network-container.collapsed {
+        width: 120px;
+        height: 120px;
+        bottom: 1rem;
+        right: 1rem;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .network-container.collapsed {
+        width: 40vw;
+        height: 50vh;
+        bottom: 1.5rem;
+        right: 1.5rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .network-container.collapsed {
+        width: 35vw;
+        height: 55vh;
+        bottom: 2rem;
+        right: 2rem;
+      }
+    }
+
+    .network-svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.75;
+      transition: opacity 0.4s ease;
+    }
+
+    .network-container.collapsed .network-svg {
+      opacity: 1;
+      /* Recenter the network to use full inlay space */
+      transform: translate(-10%, -20%) scale(1.3);
+      transform-origin: center center;
+    }
+
+    .network-container:not(.collapsed) .network-svg {
+      opacity: 0.85;
+    }
+
+    /* Network elements */
+    .edge {
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 0.3;
+      fill: none;
+      transition: all 0.4s ease;
+    }
+
+    .edge.hub-edge {
+      stroke: rgba(255, 255, 255, 0.12);
+      stroke-width: 0.4;
+    }
+
+    .edge.cross-domain {
+      stroke-dasharray: 1 1;
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 0.2;
+    }
+
+    .edge.highlighted {
+      stroke: var(--accent-teal);
+      stroke-opacity: 0.5;
+      stroke-width: 0.5;
+    }
+
+    .node-group {
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .node-outer-ring {
+      opacity: 0.2;
+      transition: opacity 0.4s ease;
+    }
+
+    .node-group.active .node-outer-ring {
+      opacity: 0.5;
+    }
+
+    .node-glow {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .node-group.active .node-glow {
+      opacity: 0.3;
+    }
+
+    .node-group:hover .node-glow {
+      opacity: 0.2;
+    }
+
+    .node-core {
+      opacity: 0.7;
+      transition: all 0.4s ease;
+    }
+
+    .node-group.active .node-core {
+      opacity: 1;
+    }
+
+    .node-group:hover .node-core {
+      opacity: 0.9;
+    }
+
+    .node-highlight {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .node-group.active .node-highlight {
+      opacity: 0.6;
+    }
+
+    .node-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.2px;
+      fill: var(--text-dim);
+      text-anchor: middle;
+      pointer-events: none;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+    }
+
+    /* Parent/main nodes get slightly larger labels */
+    .node-label.parent-label {
+      font-size: 2.5px;
+    }
+
+    .network-container.collapsed .node-label {
+      opacity: 0.9;
+      font-size: 2.8px;
+    }
+
+    .network-container.collapsed .node-label.parent-label {
+      font-size: 3.2px;
+    }
+
+    .network-container:not(.collapsed) .node-label {
+      opacity: 0.7;
+    }
+
+    .node-group.active .node-label {
+      opacity: 1;
+      fill: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .node-group:hover .node-label {
+      opacity: 1;
+      fill: var(--text-primary);
+    }
+
+    /* VP hub node - visible when collapsed OR on mobile */
+    .vp-hub-node {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .network-container.collapsed .vp-hub-node {
+      opacity: 1;
+    }
+
+    /* Show VP node on mobile even when not collapsed */
+    @media (max-width: 767px) {
+      .network-container:not(.collapsed) .vp-hub-node {
+        opacity: 1;
+      }
+    }
+
+    .network-expand-hint {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .network-container.collapsed:hover .network-expand-hint {
+      opacity: 1;
+    }
+
+    /* ========================================
+       MOBILE NETWORK PILLS
+    ======================================== */
+
+    .network-pills {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.75rem 1rem;
+      background: var(--bg-map);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      overflow-x: auto;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(78, 205, 196, 0.1);
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .network-pills::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (max-width: 767px) {
+      .network-container.collapsed {
+        display: none;
+      }
+      .network-pills.visible {
+        display: flex;
+      }
+    }
+
+    .network-pill {
+      flex-shrink: 0;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--text-dim);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+
+    .network-pill[data-domain="research"] { border-color: var(--domain-research); }
+    .network-pill[data-domain="data-science"] { border-color: var(--domain-data); }
+    .network-pill[data-domain="wellness"] { border-color: var(--domain-wellness); }
+    .network-pill[data-domain="cognition"] { border-color: var(--domain-cognition); }
+    .network-pill[data-domain="meta"] { border-color: var(--domain-meta); }
+    .network-pill[data-domain="education"] { border-color: var(--domain-education); }
+
+    .network-pill.active {
+      color: var(--bg-deep);
+    }
+
+    .network-pill.active[data-domain="research"] { background: var(--domain-research); }
+    .network-pill.active[data-domain="data-science"] { background: var(--domain-data); }
+    .network-pill.active[data-domain="wellness"] { background: var(--domain-wellness); }
+    .network-pill.active[data-domain="cognition"] { background: var(--domain-cognition); }
+    .network-pill.active[data-domain="meta"] { background: var(--domain-meta); }
+    .network-pill.active[data-domain="education"] { background: var(--domain-education); }
+
+    /* ========================================
+       HEADER
+    ======================================== */
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    .header > * {
+      pointer-events: auto;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .site-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.4s ease;
+    }
+
+    .site-title.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .nav-indicator {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .nav-indicator.visible {
+      opacity: 1;
+    }
+
+    @media (max-width: 767px) {
+      .header {
+        top: 50px;
+      }
+    }
+
+    /* ========================================
+       HERO SECTION
+    ======================================== */
+
+    .hero {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem 1.5rem 3rem;
+      position: relative;
+    }
+
+    .hero-content {
+      position: absolute;
+      bottom: 100px;
+      left: 40px;
+      z-index: 150;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 1.5rem;
+    }
+
+    .hero-portrait {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(78, 205, 196, 0.3);
+      box-shadow: 0 0 60px rgba(78, 205, 196, 0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards 0.2s;
+      flex-shrink: 0;
+      z-index: 150;
+    }
+
+    .hero-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-text {
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards 0.3s;
+    }
+
+    .hero-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(2.5rem, 10vw, 4rem);
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.8s ease forwards 0.5s;
+    }
+
+    .hero-title span {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.5em;
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+
+    .hero-intro {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards 0.7s;
+    }
+
+    .hero-scroll {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .hero-scroll-line {
+      width: 40px;
+      height: 1px;
+      background: var(--text-dim);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Mobile: portrait and title side by side, description below */
+    @media (max-width: 767px) {
+      .hero-content {
+        bottom: auto;
+        top: 38%;
+        left: 1rem;
+        right: 1rem;
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        grid-template-rows: auto auto;
+        gap: 0.75rem 1rem;
+        align-items: start;
+      }
+      .hero-portrait {
+        width: 120px;
+        height: 120px;
+        grid-row: 1;
+        grid-column: 1;
+      }
+      .hero-text {
+        grid-column: 2;
+        grid-row: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.25rem;
+      }
+      .hero-label {
+        margin-bottom: 0;
+      }
+      .hero-title {
+        margin-bottom: 0;
+        font-size: 1.75rem;
+        line-height: 1.2;
+      }
+      .hero-title span {
+        display: inline;
+        font-size: 0.5em;
+        margin-left: 0.25rem;
+      }
+      .hero-intro {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-top: 1rem;
+      }
+      .hero-scroll {
+        grid-column: 1 / -1;
+        grid-row: 3;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .hero-content {
+        bottom: 120px;
+        left: 60px;
+        gap: 2rem;
+      }
+      .hero-portrait {
+        width: 220px;
+        height: 220px;
+      }
+      .hero-text {
+        max-width: 450px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hero-content {
+        bottom: 140px;
+        left: 80px;
+        gap: 2.5rem;
+      }
+      .hero-portrait {
+        width: 260px;
+        height: 260px;
+      }
+      .hero-text {
+        max-width: 500px;
+      }
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ========================================
+       CONTENT SECTIONS
+    ======================================== */
+
+    .content-wrapper {
+      position: relative;
+      z-index: 10;
+      /* Consistent left alignment across all content */
+      --content-left-padding: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .content-wrapper {
+        --content-left-padding: 3rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .content-wrapper {
+        --content-left-padding: 6rem;
+      }
+    }
+
+    .section-card {
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 6rem 1.5rem 4rem var(--content-left-padding, 1.5rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    /* Child/subsections - more compact grouping */
+    .section-card + .section-card:not([data-node="cognition"]):not([data-node="wellness"]):not([data-node="data-science"]):not([data-node="research"]):not([data-node="education"]):not([data-node="hero"]) {
+      min-height: auto;
+      padding-top: 3rem;
+      padding-bottom: 3rem;
+      margin-top: -2rem;
+    }
+
+    .section-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--text-dim), transparent);
+      opacity: 0.2;
+    }
+
+    /* Hide separator line for consecutive subsections */
+    .section-card + .section-card:not([data-node="cognition"]):not([data-node="wellness"]):not([data-node="data-science"]):not([data-node="research"]):not([data-node="education"]):not([data-node="hero"])::before {
+      opacity: 0.1;
+    }
+
+    .section-domain {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-domain::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .section-card[data-domain="research"] .section-domain { color: var(--domain-research); }
+    .section-card[data-domain="research"] .section-domain::before { background: var(--domain-research); }
+
+    .section-card[data-domain="data-science"] .section-domain { color: var(--domain-data); }
+    .section-card[data-domain="data-science"] .section-domain::before { background: var(--domain-data); }
+
+    .section-card[data-domain="wellness"] .section-domain { color: var(--domain-wellness); }
+    .section-card[data-domain="wellness"] .section-domain::before { background: var(--domain-wellness); }
+
+    .section-card[data-domain="cognition"] .section-domain { color: var(--domain-cognition); }
+    .section-card[data-domain="cognition"] .section-domain::before { background: var(--domain-cognition); }
+
+    .section-card[data-domain="meta"] .section-domain { color: var(--domain-meta); }
+    .section-card[data-domain="meta"] .section-domain::before { background: var(--domain-meta); }
+
+    .section-card[data-domain="education"] .section-domain { color: var(--domain-education); }
+    .section-card[data-domain="education"] .section-domain::before { background: var(--domain-education); }
+
+    .section-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(1.75rem, 7vw, 2.5rem);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      max-width: 600px;
+    }
+
+    .section-description {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .section-description p {
+      margin-bottom: 1rem;
+    }
+
+    .section-description em {
+      color: var(--text-primary);
+      font-style: italic;
+    }
+
+    .section-quote {
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      border-left: 2px solid var(--accent-teal);
+      padding-left: 1.25rem;
+      margin: 1.5rem 0;
+      max-width: 500px;
+    }
+
+    /* Connections */
+    .connections-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .connections-scroll {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .connections-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .connection-chip {
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.6rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .connection-chip:hover,
+    .connection-chip:active {
+      background: var(--accent-teal-dim);
+      border-color: var(--accent-teal);
+      color: var(--accent-teal);
+    }
+
+    .connection-chip.panel-trigger {
+      border-color: var(--accent-amber);
+      color: var(--accent-amber);
+    }
+
+    .connection-chip.panel-trigger:hover {
+      background: var(--accent-amber-dim);
+    }
+
+    /* ========================================
+       CHAPTER DIVIDERS
+    ======================================== */
+
+    .chapter-divider {
+      min-height: 40vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      text-align: left;
+      padding: 2rem 1.5rem 2rem var(--content-left-padding, 1.5rem);
+      position: relative;
+    }
+
+    .chapter-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .chapter-title {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(1.5rem, 6vw, 2rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-secondary);
+    }
+
+    /* ========================================
+       SLIDE-IN PANEL
+    ======================================== */
+
+    .slide-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: 199;
+    }
+
+    .slide-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .slide-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 500px;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--bg-card);
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 200;
+      overflow-y: auto;
+      border-left: 1px solid rgba(78, 205, 196, 0.1);
+    }
+
+    .slide-panel.open {
+      transform: translateX(0);
+    }
+
+    .panel-header {
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      z-index: 10;
+    }
+
+    .panel-title {
+      font-family: 'Newsreader', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+    }
+
+    .panel-close {
+      background: none;
+      border: 1px solid var(--text-dim);
+      color: var(--text-dim);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .panel-close:hover {
+      border-color: var(--accent-teal);
+      color: var(--accent-teal);
+    }
+
+    .panel-content {
+      padding: 1.5rem;
+    }
+
+    .panel-item {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .panel-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .panel-item-title {
+      font-family: 'Newsreader', serif;
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    .panel-item-description {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      line-height: 1.7;
+    }
+
+    .panel-item-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent-teal);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: opacity 0.25s ease;
+    }
+
+    .panel-item-link:hover {
+      opacity: 0.7;
+    }
+
+    .panel-item-link::after {
+      content: '\2192';
+    }
+
+    /* ========================================
+       FOOTER
+    ======================================== */
+
+    .footer {
+      padding: 4rem 1.5rem;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .footer-tagline {
+      font-family: 'Newsreader', serif;
+      font-size: 1.25rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--text-dim);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--accent-teal);
+      border-color: var(--accent-teal);
+    }
+
+    .footer-copyright {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+    }
+
+    /* ========================================
+       RESPONSIVE
+    ======================================== */
+
+    @media (min-width: 768px) {
+      .hero {
+        padding: 4rem 3rem 5rem;
+      }
+
+      .section-card {
+        padding-top: 8rem;
+        padding-bottom: 5rem;
+        padding-right: 3rem;
+      }
+
+      .hero-intro,
+      .section-description {
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hero {
+        padding: 6rem 6rem 8rem;
+      }
+
+      .section-card {
+        padding-top: 10rem;
+        padding-bottom: 6rem;
+        padding-right: 340px;
+      }
+    }
+
+    /* ========================================
+       GRAIN & PROGRESS
+    ======================================== */
+
+    .grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--accent-teal);
+      z-index: 10000;
+      transform-origin: left;
+      transform: scaleX(0);
+    }
+
+    @media (max-width: 767px) {
+      .scroll-progress {
+        top: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="grain"></div>
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Ambient Background -->
+  <div class="ambient-bg">
+    <div class="ambient-orb"></div>
+    <div class="ambient-orb"></div>
+    <div class="ambient-orb"></div>
+  </div>
+
+  <!-- Mobile Network Pills -->
+  <nav class="network-pills" id="networkPills">
+    <a class="network-pill" data-domain="cognition" data-target="cognition">Cognition</a>
+    <a class="network-pill" data-domain="wellness" data-target="wellness">Wellness</a>
+    <a class="network-pill" data-domain="data-science" data-target="data-science">Data Science</a>
+    <a class="network-pill" data-domain="research" data-target="research">Research</a>
+    <a class="network-pill" data-domain="education" data-target="education">Education</a>
+    <a class="network-pill" data-domain="meta" data-target="hero">Thread</a>
+  </nav>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="site-title" id="siteTitle">V. Patel</div>
+      <div class="nav-indicator" id="navIndicator">01 / 08</div>
+    </div>
+  </header>
+
+  <!-- Network Map Container -->
+  <div class="network-container" id="networkContainer">
+    <svg class="network-svg" id="networkSvg" viewBox="0 0 100 100" preserveAspectRatio="xMinYMax meet">
+      <!-- SVG Filters for depth and glow effects -->
+      <defs>
+        <!-- Node shadow for depth -->
+        <filter id="nodeShadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.5"/>
+        </filter>
+
+        <!-- Node glow effect -->
+        <filter id="nodeGlow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="8" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <!-- Edge glow -->
+        <filter id="edgeGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <!-- Strong edge glow for highlighted -->
+        <filter id="edgeGlowStrong" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <!-- Gradient definitions for nodes -->
+        <radialGradient id="gradCognition" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#6ee7de"/>
+          <stop offset="100%" stop-color="#4ecdc4"/>
+        </radialGradient>
+        <radialGradient id="gradWellness" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#e8c49a"/>
+          <stop offset="100%" stop-color="#d4a574"/>
+        </radialGradient>
+        <radialGradient id="gradDataScience" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#a1c4d9"/>
+          <stop offset="100%" stop-color="#81a1c1"/>
+        </radialGradient>
+        <radialGradient id="gradResearch" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#7e9bc2"/>
+          <stop offset="100%" stop-color="#5e81ac"/>
+        </radialGradient>
+        <radialGradient id="gradEducation" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#c9a4c5"/>
+          <stop offset="100%" stop-color="#b48ead"/>
+        </radialGradient>
+        <radialGradient id="gradMeta" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#c4e8be"/>
+          <stop offset="100%" stop-color="#a3be8c"/>
+        </radialGradient>
+      </defs>
+    </svg>
+    <div class="network-expand-hint">Click to expand</div>
+  </div>
+
+  <!-- ========================================
+       HERO
+  ======================================== -->
+
+  <section class="hero" id="hero" data-node="hero">
+    <div class="hero-content">
+      <div class="hero-portrait">
+        <img src="Images/Vishal Patel MD PhD 2026.png" alt="Vishal Patel, MD PhD">
+      </div>
+      <div class="hero-text">
+        <div class="hero-label">Connecting the dots in wellness & illness</div>
+        <h1 class="hero-title">
+          Vishal Patel
+          <span>MD, PhD</span>
+        </h1>
+        <p class="hero-intro">
+          I am motivated by the search for hidden patterns in wellness and illness—and how those patterns change when we intersect with information technologies.
+        </p>
+        <div class="hero-scroll">
+          <div class="hero-scroll-line"></div>
+          <span>Scroll to explore</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================
+       CONTENT
+  ======================================== -->
+
+  <div class="content-wrapper">
+
+    <!-- CHAPTER VI: COGNITION -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter VI</div>
+      <h2 class="chapter-title">Now</h2>
+    </div>
+
+    <section class="section-card" data-domain="cognition" data-node="cognition">
+      <div class="section-domain">Cognition & AI</div>
+      <div class="section-period">2025–Present</div>
+      <h2 class="section-title">The Cognitive Era</h2>
+      <div class="section-description">
+        <p>What happens to human cognition when we intersect with AI systems designed to minimize cognitive friction? This question drives my current work.</p>
+      </div>
+    </section>
+
+    <!-- Child: Phronos -->
+    <section class="section-card" data-domain="cognition" data-node="phronos">
+      <div class="section-domain">Phronos</div>
+      <div class="section-period">Founder · 2025–Present</div>
+      <h2 class="section-title">An Observatory for Human Cognition</h2>
+      <div class="section-description">
+        <p>I am building Phronos—an observatory for human cognition in the era of artificial intelligence. The work involves large-scale analysis of human-AI interactions, cognitive phenotyping, and open-source instrumentation.</p>
+        <p>The premise: to offer tools to <em>fortify ourselves cognitively</em>, so that we engage with AI consciously.</p>
+        <p>The name comes from <em>phronesis</em>—practical wisdom, the kind that cannot be taught but must be cultivated through observation and reflection.</p>
+      </div>
+      <div class="connections-label">Explore →</div>
+      <div class="connections-scroll">
+        <button class="connection-chip panel-trigger" data-panel="dispatches">Dispatches</button>
+        <a href="https://phronos.org" class="connection-chip" target="_blank">phronos.org</a>
+      </div>
+    </section>
+
+    <!-- Child: GWI -->
+    <section class="section-card" data-domain="cognition" data-node="gwi">
+      <div class="section-domain">Global Wellness Institute</div>
+      <div class="section-period">Men's Wellbeing Initiative</div>
+      <h2 class="section-title">Advancing Men's Health Research</h2>
+      <div class="section-description">
+        <p>Member of the Global Wellness Institute's Men's Wellbeing Initiative, working to advance research and awareness around men's physical, mental, and emotional health.</p>
+      </div>
+      <div class="connections-label">Learn more →</div>
+      <div class="connections-scroll">
+        <a href="https://globalwellnessinstitute.org/mens-wellbeing-initiative/mens-wellbeing-initiative-members/" class="connection-chip" target="_blank">GWI Initiative</a>
+      </div>
+    </section>
+
+    <!-- CHAPTER V: WELLNESS -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter V</div>
+      <h2 class="chapter-title">Wellness & Longevity</h2>
+    </div>
+
+    <section class="section-card" data-domain="wellness" data-node="wellness">
+      <div class="section-domain">Wellness & Longevity</div>
+      <div class="section-period">2020–2025</div>
+      <h2 class="section-title">The Science of Wellbeing</h2>
+      <div class="section-description">
+        <p>Five years building the scientific foundation for evidence-based luxury wellness. The deepest lesson: <em>prescriptions don't work</em>. Behavior change requires meeting people where they are.</p>
+      </div>
+    </section>
+
+    <!-- Child: Sensei -->
+    <section class="section-card" data-domain="wellness" data-node="sensei">
+      <div class="section-domain">Sensei</div>
+      <div class="section-period">Co-President & CMO · 2020–2025</div>
+      <h2 class="section-title">Evidence-Based Luxury Wellness</h2>
+      <div class="section-description">
+        <p>At Sensei, founded by Larry Ellison and Dr. David Agus, I led efforts to transform personal health and wellness information into inspiring experiences to support sustainable lifestyle change.</p>
+        <p>Over five years, I rose from Director of Wellness Research to Co-President and Chief Medical Officer, and finally to Chief Science and Innovation Officer.</p>
+        <p>The Sensei Way was built on three paths—Move, Nourish, Rest—and the constant conversation between mind and body that underlies each.</p>
+      </div>
+      <blockquote class="section-quote">
+        "Evidence and data are the lingua franca of successful people globally. Science speaks volumes."
+      </blockquote>
+      <div class="connections-label">Explore →</div>
+      <div class="connections-scroll">
+        <button class="connection-chip panel-trigger" data-panel="sensei-media">Media</button>
+      </div>
+    </section>
+
+    <!-- Child: Longevity -->
+    <section class="section-card" data-domain="wellness" data-node="longevity">
+      <div class="section-domain">Longevity Research</div>
+      <div class="section-period">Longevity Summit Dublin · 2025</div>
+      <h2 class="section-title">Wellness, Data & Longevity</h2>
+      <div class="section-description">
+        <p>Exploring the intersection of wellness data and longevity science. How do we measure and optimize for healthspan, not just lifespan?</p>
+      </div>
+      <div class="connections-label">Learn more →</div>
+      <div class="connections-scroll">
+        <a href="https://longevitysummitdublin.com/wellness-data-longevity-sensei-sponsors-dublin-2025/" class="connection-chip" target="_blank">Longevity Summit</a>
+      </div>
+    </section>
+
+    <!-- CHAPTER IV: DATA SCIENCE -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter IV</div>
+      <h2 class="chapter-title">Healthcare Analytics</h2>
+    </div>
+
+    <section class="section-card" data-domain="data-science" data-node="data-science">
+      <div class="section-domain">Healthcare Data Science</div>
+      <div class="section-period">2015–2020</div>
+      <h2 class="section-title">Building Data-Driven Evidence Systems</h2>
+      <div class="section-description">
+        <p>At the intersection of healthcare, machine learning, and clinical operations—building analytic approaches that reduce medical costs and improve quality.</p>
+        <p>My focus was on the <em>epistemic opacity</em> of the healthcare system: how do we understand and process medical data when the systems generating that data are themselves opaque?</p>
+      </div>
+    </section>
+
+    <!-- Child: Cogitativo -->
+    <section class="section-card" data-domain="data-science" data-node="cogitativo">
+      <div class="section-domain">Cogitativo</div>
+      <div class="section-period">Managing Director · 2019–2020</div>
+      <h2 class="section-title">ML for Payment Integrity</h2>
+      <div class="section-description">
+        <p>Berkeley-based, mission-driven data science company. Led matrixed teams to provide ML services for payment accuracy, low-value care reduction, and anomalous provider behavior detection for 45+ million health plan members.</p>
+      </div>
+      <div class="connections-label">Learn more →</div>
+      <div class="connections-scroll">
+        <a href="https://www.cogitativo.com/" class="connection-chip" target="_blank">cogitativo.com</a>
+      </div>
+    </section>
+
+    <!-- Child: Pieces -->
+    <section class="section-card" data-domain="data-science" data-node="pieces">
+      <div class="section-domain">Pieces Technologies</div>
+      <div class="section-period">Director of Product · 2016–2019</div>
+      <h2 class="section-title">NLP for Healthcare Workflows</h2>
+      <div class="section-description">
+        <p>Led cross-functional teams designing next-generation data science products. NLP and predictive model development, chart abstraction workflows, and automation of manual clinical tasks.</p>
+        <p>Here I learned that <em>technical sophistication means nothing if it doesn't fit the workflow</em>. Implementation is its own science.</p>
+      </div>
+      <div class="connections-label">Learn more →</div>
+      <div class="connections-scroll">
+        <a href="https://www.piecestech.com/" class="connection-chip" target="_blank">piecestech.com</a>
+      </div>
+    </section>
+
+    <!-- Child: Syndromic -->
+    <section class="section-card" data-domain="data-science" data-node="syndromic">
+      <div class="section-domain">Syndromic</div>
+      <div class="section-period">Founder · 2020–2023</div>
+      <h2 class="section-title">Organizing Wellness Information</h2>
+      <div class="section-description">
+        <p>Founded to organize the exploding volume and variety of wellness information. The paradox of our information age: while information is becoming more readily available, the answers we seek often become more elusive.</p>
+      </div>
+      <div class="connections-label">Learn more →</div>
+      <div class="connections-scroll">
+        <a href="https://syndromic.com/" class="connection-chip" target="_blank">syndromic.com</a>
+      </div>
+    </section>
+
+    <!-- Child: xG Health -->
+    <section class="section-card" data-domain="data-science" data-node="xg">
+      <div class="section-domain">xG Health Solutions</div>
+      <div class="section-period">Analytics Manager · 2015–2016</div>
+      <h2 class="section-title">Predictive Healthcare Analytics</h2>
+      <div class="section-description">
+        <p>Developed predictive models of insurance claims and clinical datasets. Implemented ML algorithms to identify core drivers of clinical outcomes. Served as physician advisor to product development teams.</p>
+      </div>
+    </section>
+
+    <!-- CHAPTER III: RESEARCH -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter III</div>
+      <h2 class="chapter-title">Academic Research</h2>
+    </div>
+
+    <section class="section-card" data-domain="research" data-node="research">
+      <div class="section-domain">Research & Academia</div>
+      <div class="section-period">2005–2015</div>
+      <h2 class="section-title">The Search for Hidden Patterns</h2>
+      <div class="section-description">
+        <p>My academic training established the methodological foundations I continue to apply: the search for hidden patterns in complex biological and behavioral systems.</p>
+      </div>
+    </section>
+
+    <!-- Child: CRANE -->
+    <section class="section-card" data-domain="research" data-node="crane">
+      <div class="section-domain">CRANE Algorithm</div>
+      <div class="section-period">PhD Research · 2013</div>
+      <h2 class="section-title">Network Signatures of Survival</h2>
+      <div class="section-description">
+        <p>My doctoral work at Case Western Reserve University employed <em>combinatorial network analysis</em> to identify molecular patterns distinguishing short-term from long-term survivors of glioblastoma.</p>
+        <p>CRANE (Combinatorially dysRegulated subNEtworks) achieved 80% prediction accuracy using a 50-gene subnetwork signature, demonstrating that network-based mRNA signatures serve as better indicators of protein-level dysregulation than sets of differentially expressed single genes—a nearly 7-fold improvement.</p>
+      </div>
+      <div class="connections-label">Publication →</div>
+      <div class="connections-scroll">
+        <a href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003237" class="connection-chip" target="_blank">PLOS Comp Bio</a>
+      </div>
+    </section>
+
+    <!-- Child: EHR Mining -->
+    <section class="section-card" data-domain="research" data-node="ehr">
+      <div class="section-domain">EHR Data Mining</div>
+      <div class="section-period">Research Fellow · 2013–2015</div>
+      <h2 class="section-title">Multivariate Pharmacosurveillance</h2>
+      <div class="section-description">
+        <p>At MetroHealth System and the Louis B. Stokes VA Medical Center, I developed statistical approaches to mine patterns from de-identified patient records—detecting drug side effects and predicting adverse events.</p>
+        <p>This work showed that EHR data could reveal <em>multivariate pharmacosurveillance signals</em> invisible to traditional case reports.</p>
+      </div>
+      <div class="connections-label">Publication →</div>
+      <div class="connections-scroll">
+        <a href="https://www.sciencedirect.com/science/article/pii/S1532046413001615" class="connection-chip" target="_blank">J Biomed Inform</a>
+      </div>
+    </section>
+
+    <!-- Child: Explorys -->
+    <section class="section-card" data-domain="research" data-node="explorys">
+      <div class="section-domain">Clinical Informatics</div>
+      <div class="section-period">Explorys Platform</div>
+      <h2 class="section-title">Population-Level Analytics</h2>
+      <div class="section-description">
+        <p>Using the Explorys platform to analyze population-level electronic health records. Applied NLP algorithms to physicians' notes and collaborated with clinicians to identify clinical endpoints.</p>
+        <p>As faculty in the Systems Biology and Bioinformatics program at Case Western, I taught graduate courses in Clinical Research Informatics and Healthcare Data Analytics.</p>
+      </div>
+    </section>
+
+    <!-- CHAPTER II: EDUCATION -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter II</div>
+      <h2 class="chapter-title">Foundations</h2>
+    </div>
+
+    <section class="section-card" data-domain="education" data-node="education">
+      <div class="section-domain">Education</div>
+      <div class="section-period">2001–2013</div>
+      <h2 class="section-title">The Quantitative Foundations</h2>
+      <div class="section-description">
+        <p>Before medicine, I studied engineering. My first love: the quantitative foundations—fluid mechanics, systems dynamics, computational methods—that would later shape how I approach biological and behavioral complexity.</p>
+      </div>
+    </section>
+
+    <!-- Child: MD -->
+    <section class="section-card" data-domain="education" data-node="md">
+      <div class="section-domain">Doctor of Medicine</div>
+      <div class="section-period">Case Western Reserve · 2005–2013</div>
+      <h2 class="section-title">Learning to See Patients</h2>
+      <div class="section-description">
+        <p>Eight years traversing the molecular foundations of disease while learning to see patients, not just data. The dual degree was about learning to translate between languages: the molecular and the clinical.</p>
+      </div>
+    </section>
+
+    <!-- Child: PhD -->
+    <section class="section-card" data-domain="education" data-node="phd">
+      <div class="section-domain">PhD in Genetics</div>
+      <div class="section-period">Case Western Reserve · 2005–2013</div>
+      <h2 class="section-title">Network Architecture of Cancer</h2>
+      <div class="section-description">
+        <p>My dissertation explored the <em>network architecture of cancer</em>—how patterns of gene expression could predict survival in glioblastoma. This work established my orientation toward network thinking.</p>
+      </div>
+      <div class="connections-label">Explore →</div>
+      <div class="connections-scroll">
+        <a href="https://toughpill.wordpress.com/" class="connection-chip" target="_blank">Blog Archive</a>
+      </div>
+    </section>
+
+    <!-- Child: Ayurveda -->
+    <section class="section-card" data-domain="education" data-node="ayurveda">
+      <div class="section-domain">Ayurveda</div>
+      <div class="section-period">Gujarat Ayurved University</div>
+      <h2 class="section-title">A Bridge Between Worlds</h2>
+      <div class="section-description">
+        <p>A certificate in Ayurveda offered a framework for understanding constitution, imbalance, and restoration that complemented my Western training.</p>
+        <p>The key lesson: <em>ancient systems encode empirical wisdom</em> that modern science is only beginning to validate.</p>
+      </div>
+    </section>
+
+    <!-- Child: Georgia Tech -->
+    <section class="section-card" data-domain="education" data-node="gatech">
+      <div class="section-domain">Mechanical Engineering</div>
+      <div class="section-period">Georgia Institute of Technology · 2001–2005</div>
+      <h2 class="section-title">Engineering Foundations</h2>
+      <div class="section-description">
+        <p>Bachelor of Science in Mechanical Engineering. Engineers ask: <em>how do we model this system? How do we intervene?</em> These questions never left me.</p>
+        <p><em>Wavelet-Based Characterization Of Small-Scale Turbulent Structures In A Mechanical Heart Valve Flow</em> — ASME Summer Bioengineering Conference, 2005 (Winner, Student Poster Competition)</p>
+        <p><em>Synthesis and In Vitro Biocompatibility of Injectable Polyurethane Foam Scaffolds</em> — Tissue Engineering, 2006</p>
+      </div>
+      <div class="connections-label">Publications →</div>
+      <div class="connections-scroll">
+        <a href="https://files.asme.org/divisions/bed/16786.pdf" class="connection-chip" target="_blank">ASME Paper</a>
+        <a href="https://pubmed.ncbi.nlm.nih.gov/16771638/" class="connection-chip" target="_blank">Tissue Eng</a>
+      </div>
+    </section>
+
+    <!-- CHAPTER I: META -->
+    <div class="chapter-divider">
+      <div class="chapter-number">Chapter I</div>
+      <h2 class="chapter-title">The Thread</h2>
+    </div>
+
+    <section class="section-card" data-domain="meta" data-node="hero">
+      <div class="section-domain">Philosophy</div>
+      <div class="section-period">Ongoing inquiry</div>
+      <h2 class="section-title">The Recursive Embedding of a Life</h2>
+      <div class="section-description">
+        <p>Looking back, the through-line becomes clear. In glioblastoma, I searched for molecular patterns that could distinguish survivors from non-survivors—and found that the key was not individual gene expression but the <em>configuration of genes in networks</em>.</p>
+        <p>At Sensei, I sought to transform wellness information into actionable insight—and found that the key was not more data but <em>better conversations</em>.</p>
+        <p>Now, at Phronos, I'm asking what happens to human cognition when we intersect with AI systems designed to minimize cognitive friction.</p>
+        <p>The questions have remained consistent: <em>How do we choose the labels by which to define ourselves? What patterns are we missing when we average across populations? What gets lost when we optimize for efficiency?</em></p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer-tagline">Know thyself. Empirically.</p>
+    <div class="footer-links">
+      <a href="https://phronos.org" class="footer-link" target="_blank">Phronos</a>
+      <a href="https://phronos.substack.com" class="footer-link" target="_blank">Substack</a>
+      <a href="https://www.linkedin.com/in/vishal-n-patel-md-phd/" class="footer-link" target="_blank">LinkedIn</a>
+      <a href="mailto:vishal@phronos.org" class="footer-link">Email</a>
+    </div>
+    <div class="footer-copyright">© 2025 Vishal Patel</div>
+  </footer>
+
+  <!-- ========================================
+       SLIDE PANEL
+  ======================================== -->
+
+  <div class="slide-backdrop" id="slideBackdrop"></div>
+  <div class="slide-panel" id="slidePanel">
+    <div class="panel-header">
+      <h3 class="panel-title" id="panelTitle">Panel Title</h3>
+      <button class="panel-close" id="panelClose">&times;</button>
+    </div>
+    <div class="panel-content" id="panelContent"></div>
+  </div>
+
+  <!-- ========================================
+       JAVASCRIPT
+  ======================================== -->
+
+  <script>
+    // ===========================================
+    // PANEL CONTENT DATA
+    // ===========================================
+
+    const panelData = {
+      'dispatches': {
+        title: 'Dispatches from the Observatory',
+        items: [
+          {
+            title: 'DSP-001: Our Extreme Thoughts',
+            description: 'Examined 4.8 million human-AI conversations from the WildChat corpus. Found a power law: one-tenth of one percent of users generated more than a third of all toxic conversations.',
+            link: 'https://phronos.org/dispatches',
+            linkText: 'Read dispatch'
+          },
+          {
+            title: 'DSP-002: What Predicts Who Stays?',
+            description: 'Identity markers contributed almost nothing to prediction. What mattered was how much someone typed, and what topics they explored. Curiosity, measured as semantic diversity, emerged as the engine of sustained engagement.',
+            link: 'https://phronos.org/dispatches',
+            linkText: 'Read dispatch'
+          },
+          {
+            title: 'The Frictionless Mind',
+            description: 'The danger is not that AI replaces our intelligence, but that its immediacy confines us to the reactive firing of our current semantic networks, preventing the slow, deliberate friction required to wire new ones.',
+            link: 'https://phronos.org/dispatches',
+            linkText: 'Read essay'
+          }
+        ]
+      },
+      'sensei-media': {
+        title: 'Selected Media',
+        items: [
+          {
+            title: 'Hearst Panel: Women\'s Cardiovascular Health',
+            description: 'Discussion on women\'s cardiovascular health at the Hearst Women\'s Health Lab.',
+            link: 'https://www.youtube.com/watch?v=BwuA5RR2maE',
+            linkText: 'Watch on YouTube'
+          },
+          {
+            title: 'Hearst Women\'s Health Lab 2025',
+            description: 'Insights on wellness and longevity from the Hearst Women\'s Health Lab.',
+            link: 'https://www.youtube.com/watch?v=ETeJ6s6GqvM',
+            linkText: 'Watch on YouTube'
+          },
+          {
+            title: 'Worth Magazine: The Luxury Wellness Approach',
+            description: 'Featured discussion on science-backed wellness.',
+            link: 'https://www.instagram.com/reel/DTTimTSF5f_/',
+            linkText: 'Watch'
+          },
+          {
+            title: 'Elite Traveler: The Sensei Way',
+            description: '"We really want to lead people to focus on their long-term well-being, not just a quick diet or workout fad."',
+            link: 'https://elitetraveler.com/health-wellness/dr-vishal-patel-sensei-lanai',
+            linkText: 'Read article'
+          },
+          {
+            title: 'NUVO: Harnessing the Mind at Sensei Lanai',
+            description: '"I was always intrigued by Chinese medicine and Ayurvedic medicine because they don\'t start with a scalpel; they start with conversations."',
+            link: 'https://nuvomagazine.com/daily-edit/sensei-lanai-four-seasons-resort',
+            linkText: 'Read article'
+          },
+          {
+            title: 'Longevity Summit Dublin 2025',
+            description: 'Wellness, data, and longevity at the Dublin summit.',
+            link: 'https://longevitysummitdublin.com/wellness-data-longevity-sensei-sponsors-dublin-2025/',
+            linkText: 'View'
+          }
+        ]
+      },
+      'data-roles': {
+        title: 'Healthcare Analytics Positions',
+        items: [
+          {
+            title: 'Syndromic (Founder)',
+            description: 'Founded to organize the exploding volume and variety of wellness information. The paradox of our information age: while information is becoming more readily available, the answers we seek often become more elusive.',
+            link: null
+          },
+          {
+            title: 'Cogitativo (Managing Director)',
+            description: 'Berkeley-based, mission-driven data science company. Led matrixed teams to provide ML services for payment accuracy, low-value care reduction, and anomalous provider behavior detection for 45+ million health plan members.',
+            link: null
+          },
+          {
+            title: 'Pieces Technologies (Director of Product)',
+            description: 'Led cross-functional teams designing next-generation data science products. NLP and predictive model development, chart abstraction workflows, and automation of manual clinical tasks.',
+            link: null
+          },
+          {
+            title: 'xG Health Solutions (Analytics Manager)',
+            description: 'Developed predictive models of insurance claims and clinical datasets. Implemented ML algorithms to identify core drivers of clinical outcomes.',
+            link: null
+          }
+        ]
+      },
+      'publications': {
+        title: 'Selected Publications',
+        items: [
+          {
+            title: 'Network Signatures of Survival in Glioblastoma Multiforme',
+            description: 'PLOS Computational Biology, 2013. Employed combinatorial network analysis to identify 50-gene subnetwork signature with 80% prediction accuracy.',
+            link: 'https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003237',
+            linkText: 'Read paper'
+          },
+          {
+            title: 'Using Aggregated, De-identified EHR Data for Multivariate Pharmacosurveillance',
+            description: 'Journal of Biomedical Informatics, 2014. A case study of azathioprine using the Explorys platform.',
+            link: 'https://www.sciencedirect.com/science/article/pii/S1532046413001615',
+            linkText: 'Read paper'
+          }
+        ]
+      }
+    };
+
+    // ===========================================
+    // NETWORK DATA
+    // ===========================================
+
+    const nodes = [
+      // Center hub - positioned at bottom-left to align with portrait (in 0-100 coordinate space)
+      // Portrait center: left edge ~8% + half width (~7%) = ~15%, bottom ~92% in SVG coords
+      { id: "hero", label: "", x: 13, y: 80, size: 0, domain: "meta", isCenter: true, hidden: true },
+
+      // Chapter VI: Cognition - Parent + Children (radiating up and right from hub)
+      { id: "cognition", label: "Cognition", x: 35, y: 55, size: 2.5, domain: "cognition", isParent: true },
+      { id: "phronos", label: "Phronos", x: 28, y: 35, size: 1.5, domain: "cognition", parent: "cognition" },
+      { id: "gwi", label: "GWI", x: 50, y: 38, size: 1.5, domain: "cognition", parent: "cognition" },
+
+      // Chapter V: Wellness - Parent + Children (upper right quadrant)
+      { id: "wellness", label: "Wellness", x: 60, y: 40, size: 2.5, domain: "wellness", isParent: true },
+      { id: "sensei", label: "Sensei", x: 75, y: 22, size: 1.5, domain: "wellness", parent: "wellness" },
+      { id: "longevity", label: "Longevity", x: 80, y: 48, size: 1.5, domain: "wellness", parent: "wellness" },
+
+      // Chapter IV: Data Science - Parent + Children (right side)
+      { id: "data-science", label: "Data Sci", x: 72, y: 62, size: 2.5, domain: "data-science", isParent: true },
+      { id: "cogitativo", label: "Cogitativo", x: 88, y: 52, size: 1.2, domain: "data-science", parent: "data-science" },
+      { id: "pieces", label: "Pieces", x: 92, y: 68, size: 1.2, domain: "data-science", parent: "data-science" },
+      { id: "syndromic", label: "Syndromic", x: 85, y: 78, size: 1.2, domain: "data-science", parent: "data-science" },
+      { id: "xg", label: "xG", x: 75, y: 82, size: 1.2, domain: "data-science", parent: "data-science" },
+
+      // Chapter III: Research - Parent + Children (bottom center-right)
+      { id: "research", label: "Research", x: 55, y: 75, size: 2.5, domain: "research", isParent: true },
+      { id: "crane", label: "CRANE", x: 60, y: 90, size: 1.2, domain: "research", parent: "research" },
+      { id: "ehr", label: "EHR", x: 45, y: 88, size: 1.2, domain: "research", parent: "research" },
+      { id: "explorys", label: "Explorys", x: 40, y: 80, size: 1.2, domain: "research", parent: "research" },
+
+      // Chapter II: Education - Parent + Children (bottom left, closer to hub)
+      { id: "education", label: "Education", x: 28, y: 70, size: 2.5, domain: "education", isParent: true },
+      { id: "md", label: "MD", x: 15, y: 58, size: 1.2, domain: "education", parent: "education" },
+      { id: "phd", label: "PhD", x: 10, y: 72, size: 1.2, domain: "education", parent: "education" },
+      { id: "ayurveda", label: "Ayurveda", x: 12, y: 82, size: 1.2, domain: "education", parent: "education" },
+      { id: "gatech", label: "GT", x: 25, y: 90, size: 1.2, domain: "education", parent: "education" }
+
+      // Chapter I: The Thread - uses the VP/hero node (no separate node)
+    ];
+
+    const edges = [
+      // Central hub to parent nodes
+      { source: "hero", target: "cognition" },
+      { source: "hero", target: "wellness" },
+      { source: "hero", target: "data-science" },
+      { source: "hero", target: "research" },
+      { source: "hero", target: "education" },
+
+      // Parent to children - Cognition
+      { source: "cognition", target: "phronos" },
+      { source: "cognition", target: "gwi" },
+
+      // Parent to children - Wellness
+      { source: "wellness", target: "sensei" },
+      { source: "wellness", target: "longevity" },
+
+      // Parent to children - Data Science
+      { source: "data-science", target: "cogitativo" },
+      { source: "data-science", target: "pieces" },
+      { source: "data-science", target: "syndromic" },
+      { source: "data-science", target: "xg" },
+
+      // Parent to children - Research
+      { source: "research", target: "crane" },
+      { source: "research", target: "ehr" },
+      { source: "research", target: "explorys" },
+
+      // Parent to children - Education
+      { source: "education", target: "md" },
+      { source: "education", target: "phd" },
+      { source: "education", target: "ayurveda" },
+      { source: "education", target: "gatech" },
+
+      // Chronological flow between parents (circular through hub/VP)
+      { source: "cognition", target: "wellness" },
+      { source: "wellness", target: "data-science" },
+      { source: "data-science", target: "research" },
+      { source: "research", target: "education" },
+
+      // ============================================
+      // CROSS-DOMAIN CONCEPTUAL CONNECTIONS
+      // These represent actual intellectual bridges
+      // ============================================
+
+      // Ayurveda → Sensei (Eastern wellness philosophy → luxury wellness practice)
+      { source: "ayurveda", target: "sensei", crossDomain: true },
+
+      // PhD (network analysis) → CRANE (dissertation algorithm)
+      { source: "phd", target: "crane", crossDomain: true },
+
+      // EHR Mining → Pieces (clinical informatics → NLP products)
+      { source: "ehr", target: "pieces", crossDomain: true },
+
+      // Explorys → Cogitativo (population analytics → ML for healthcare)
+      { source: "explorys", target: "cogitativo", crossDomain: true },
+
+      // Syndromic → Phronos (organizing wellness info → cognitive observatory)
+      { source: "syndromic", target: "phronos", crossDomain: true },
+
+      // GT (engineering) → CRANE (computational methods)
+      { source: "gatech", target: "crane", crossDomain: true },
+
+      // MD → Longevity (clinical training → longevity science)
+      { source: "md", target: "longevity", crossDomain: true },
+
+      // GWI bridges Cognition and Wellness
+      { source: "gwi", target: "cognition", crossDomain: true },
+      { source: "gwi", target: "wellness", crossDomain: true },
+
+      // Sensei → MD (wellness leadership informed by medical training)
+      { source: "sensei", target: "md", crossDomain: true },
+
+      // Longevity → PhD (longevity science informed by research training)
+      { source: "longevity", target: "phd", crossDomain: true },
+
+      // GT → Phronos (engineering education → cognitive observatory)
+      { source: "gatech", target: "phronos", crossDomain: true },
+
+      // Cognition → Data Science (cognitive work informed by data science)
+      { source: "cognition", target: "data-science", crossDomain: true },
+
+      // Wellness → Ayurveda (wellness practice informed by Ayurveda)
+      { source: "wellness", target: "ayurveda", crossDomain: true }
+    ];
+
+    const domainColors = {
+      "research": "#5e81ac",
+      "data-science": "#81a1c1",
+      "wellness": "#d4a574",
+      "cognition": "#4ecdc4",
+      "meta": "#a3be8c",
+      "education": "#b48ead"
+    };
+
+    // ===========================================
+    // BUILD NETWORK WITH D3 FORCE SIMULATION
+    // ===========================================
+
+    const svgElement = document.getElementById('networkSvg');
+    const width = 100;
+    const height = 100;
+
+    // Map domain to gradient ID
+    const domainGradients = {
+      "cognition": "url(#gradCognition)",
+      "wellness": "url(#gradWellness)",
+      "data-science": "url(#gradDataScience)",
+      "research": "url(#gradResearch)",
+      "education": "url(#gradEducation)",
+      "meta": "url(#gradMeta)"
+    };
+
+    // Create D3 selection
+    const svg = d3.select(svgElement);
+
+    // Prepare links data (convert edge references to actual objects)
+    const links = edges.map(e => ({
+      source: e.source,
+      target: e.target,
+      crossDomain: e.crossDomain || false
+    }));
+
+    // ===========================================
+    // DYNAMIC LAYOUT CALCULATION
+    // Detect available space and expand network to fill it
+    // ===========================================
+
+    function calculateLayoutParams() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const isMobile = vw < 768;
+      const isTablet = vw >= 768 && vw < 1024;
+
+      // Calculate the text zone in percentage terms based on viewport
+      // Text area gets relatively smaller on wider screens, leaving more space for network
+      let textZone;
+      if (isMobile) {
+        // Mobile: hero content spans full width at bottom, push nodes UP
+        textZone = { x1: 0, y1: 45, x2: 100, y2: 100 };
+      } else if (isTablet) {
+        // Tablet: text area is moderate
+        textZone = { x1: 30, y1: 50, x2: 85, y2: 90 };
+      } else {
+        // Desktop: text is more constrained, more space for network
+        // Wider screens = proportionally smaller text zone
+        const textWidthRatio = Math.min(600 / vw, 0.5); // max-width: 500-600px
+        textZone = {
+          x1: 25,
+          y1: 45,
+          x2: 25 + (textWidthRatio * 100),
+          y2: 88
+        };
+      }
+
+      // Calculate available network space (everything NOT in text zone)
+      // Available area is primarily: top portion + right side on desktop
+      const availableWidth = isMobile ? 100 : Math.max(50, 100 - textZone.x2 + 30);
+      const availableHeight = isMobile ? textZone.y1 : 100;
+
+      // Calculate optimal radial distances based on available space
+      const baseRadial = Math.min(availableWidth, availableHeight) * 0.4;
+      const parentRadial = Math.max(25, baseRadial * 0.7);
+      const childRadial = Math.max(35, baseRadial);
+
+      // Hub link distance - longer on wider screens to spread network more
+      const hubLinkDistance = isMobile ? 45 : (isTablet ? 55 : Math.min(80, 50 + vw / 40));
+
+      // Repulsion strength scales with available space
+      const hubRepulsion = isMobile ? -300 : (isTablet ? -400 : Math.min(-600, -400 - vw / 10));
+
+      return {
+        textZone,
+        parentRadial,
+        childRadial,
+        hubLinkDistance,
+        hubRepulsion,
+        isMobile,
+        isTablet
+      };
+    }
+
+    let layoutParams = calculateLayoutParams();
+
+    // Hub position - responsive to screen size
+    // On mobile, hub centered in the network area
+    const hubPos = layoutParams.isMobile
+      ? { x: 50, y: 50 }   // Mobile: centered
+      : { x: 18, y: 72 };  // Desktop: near portrait
+
+    // Clone nodes for D3 (it will mutate them)
+    // On mobile, start nodes clustered near the hub so they spread outward from top
+    const simulationNodes = nodes.map(n => {
+      let startX = n.x;
+      let startY = n.y;
+
+      if (n.id === 'hero') {
+        startX = hubPos.x;
+        startY = hubPos.y;
+      } else if (layoutParams.isMobile) {
+        // On mobile, cluster nodes near the hub with small random offset
+        startX = hubPos.x + (Math.random() - 0.5) * 20;
+        startY = hubPos.y + (Math.random() - 0.5) * 20;
+      }
+
+      return {
+        ...n,
+        x: startX,
+        y: startY,
+        fx: n.id === 'hero' ? hubPos.x : null,
+        fy: n.id === 'hero' ? hubPos.y : null
+      };
+    });
+
+    // Create the force simulation with dynamic physics based on available space
+    const simulation = d3.forceSimulation(simulationNodes)
+      .force("link", d3.forceLink(links)
+        .id(d => d.id)
+        .distance(d => {
+          const sourceId = typeof d.source === 'object' ? d.source.id : d.source;
+          const targetId = typeof d.target === 'object' ? d.target.id : d.target;
+
+          // Links from hub - dynamic based on screen size
+          if (sourceId === 'hero' || targetId === 'hero') return layoutParams.hubLinkDistance;
+
+          // Cross-domain links are longer (more slack)
+          if (d.crossDomain) return layoutParams.hubLinkDistance * 0.5;
+
+          // Parent-child links
+          const sourceNode = simulationNodes.find(n => n.id === sourceId);
+          const targetNode = simulationNodes.find(n => n.id === targetId);
+          if (sourceNode?.parent || targetNode?.parent) return 18;
+          if (sourceNode?.isParent && targetNode?.isParent) return 25;
+          return 20;
+        })
+        .strength(d => {
+          const sourceId = typeof d.source === 'object' ? d.source.id : d.source;
+          const targetId = typeof d.target === 'object' ? d.target.id : d.target;
+
+          // Strong force pushing away from hub
+          if (sourceId === 'hero' || targetId === 'hero') return 0.8;
+          if (d.crossDomain) return 0.1;
+          return 0.4;
+        })
+      )
+      .force("charge", d3.forceManyBody()
+        .strength(d => {
+          if (d.id === 'hero') return layoutParams.hubRepulsion;
+          if (d.isParent) return -60;
+          return -25;
+        })
+      )
+      .force("collision", d3.forceCollide().radius(d => d.size + 4))
+      .force("radial", d3.forceRadial(d => {
+        // Pull nodes toward concentric circles - distances scale with screen
+        if (d.id === 'hero') return 0;
+        if (d.isParent) return layoutParams.parentRadial;
+        return layoutParams.childRadial;
+      }, hubPos.x, hubPos.y).strength(d => {
+        if (d.id === 'hero') return 0;
+        return 0.2;
+      }))
+      .force("x", d3.forceX(d => d.x).strength(0.05))
+      .force("y", d3.forceY(d => d.y).strength(0.05))
+      .force("boundary", () => {
+        // Keep nodes within bounds and away from hero text area
+        const textZone = layoutParams.textZone;
+
+        simulationNodes.forEach(d => {
+          if (d.id !== 'hero') {
+            // On mobile, use very loose bounds - let radial force do the work
+            if (layoutParams.isMobile) {
+              d.x = Math.max(-5, Math.min(105, d.x));
+              d.y = Math.max(-5, Math.min(105, d.y));
+            } else {
+              // Desktop: Keep within tighter bounds
+              d.x = Math.max(5, Math.min(95, d.x));
+              d.y = Math.max(5, Math.min(95, d.y));
+
+              // On desktop, gently push nodes away from text zone
+              if (d.x > textZone.x1 && d.x < textZone.x2 &&
+                  d.y > textZone.y1 && d.y < textZone.y2) {
+                const nudge = 0.5;
+                const distToLeft = d.x - textZone.x1;
+                const distToTop = d.y - textZone.y1;
+                const distToRight = textZone.x2 - d.x;
+
+                if (distToRight < distToLeft && distToRight < distToTop) {
+                  d.vx = (d.vx || 0) + nudge;
+                } else if (distToLeft < distToTop) {
+                  d.vx = (d.vx || 0) - nudge;
+                } else {
+                  d.vy = (d.vy || 0) - nudge;
+                }
+              }
+            }
+          }
+        });
+      })
+      .alphaDecay(0.025)
+      .velocityDecay(0.5)
+      .stop(); // Stop auto-running - we'll manually tick first
+
+    // Run simulation for initial layout before rendering
+    // More ticks = more settled initial state, less visible jittering
+    for (let i = 0; i < 250; i++) {
+      simulation.tick();
+    }
+
+    // Get the resolved links from the force (source/target are now node objects)
+    const resolvedLinks = simulation.force("link").links();
+
+    // Separate links by type (use resolvedLinks - source/target are now node objects)
+    const crossDomainLinks = resolvedLinks.filter(l => l.crossDomain);
+    const hubLinks = resolvedLinks.filter(l => {
+      return (l.source.id === 'hero' || l.target.id === 'hero') && !l.crossDomain;
+    });
+    const regularLinks = resolvedLinks.filter(l => {
+      return l.source.id !== 'hero' && l.target.id !== 'hero' && !l.crossDomain;
+    });
+
+    // Draw all edges using line elements (standard D3 pattern - most reliable)
+    const link = svg.selectAll(".edge")
+      .data(resolvedLinks)
+      .join("line")
+      .attr("class", d => {
+        if (d.crossDomain) return "edge cross-domain";
+        if (d.source.id === 'hero' || d.target.id === 'hero') return "edge hub-edge";
+        return "edge regular";
+      })
+      .attr("data-source", d => d.source.id)
+      .attr("data-target", d => d.target.id);
+
+    // Draw nodes (filter out hidden hero)
+    const visibleNodes = simulationNodes.filter(n => !n.hidden);
+
+    const nodeGroup = svg.selectAll(".node-group")
+      .data(visibleNodes, d => d.id)
+      .join("g")
+      .attr("class", "node-group")
+      .attr("data-id", d => d.id)
+      .style("cursor", "pointer")
+      .on("click", (event, d) => {
+        const section = document.querySelector(`[data-node="${d.id}"]`);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      })
+      .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended)
+      );
+
+    // Add outer ring (subtle depth indicator)
+    nodeGroup.append("circle")
+      .attr("class", "node-outer-ring")
+      .attr("r", d => d.size * 1.6)
+      .attr("fill", "none")
+      .attr("stroke", d => domainColors[d.domain])
+      .attr("stroke-width", 0.3);
+
+    // Add glow circles
+    nodeGroup.append("circle")
+      .attr("class", "node-glow")
+      .attr("r", d => d.size * 2)
+      .attr("fill", d => domainColors[d.domain]);
+
+    // Add core circles with gradient
+    nodeGroup.append("circle")
+      .attr("class", "node-core")
+      .attr("r", d => d.size)
+      .attr("fill", d => domainGradients[d.domain]);
+
+    // Add highlight circle (inner glow)
+    nodeGroup.append("circle")
+      .attr("class", "node-highlight")
+      .attr("r", d => d.size * 0.3)
+      .attr("fill", "rgba(255,255,255,0.5)")
+      .attr("cx", d => -d.size * 0.15)
+      .attr("cy", d => -d.size * 0.15);
+
+    // Add labels - parent nodes get larger label class
+    nodeGroup.append("text")
+      .attr("class", d => d.isParent ? "node-label parent-label" : "node-label")
+      .attr("y", d => d.size + 3)
+      .attr("text-anchor", "middle")
+      .text(d => d.label);
+
+    // Add VP hub node (only visible when collapsed)
+    const heroNode = simulationNodes.find(n => n.id === 'hero');
+    const vpGroup = svg.append("g")
+      .attr("class", "vp-hub-node")
+      .attr("transform", `translate(${heroNode.x}, ${heroNode.y})`);
+
+    vpGroup.append("circle")
+      .attr("r", 4)
+      .attr("fill", "var(--text-dim)");
+
+    vpGroup.append("text")
+      .attr("class", "vp-label")
+      .attr("y", 1.2)
+      .attr("text-anchor", "middle")
+      .attr("fill", "var(--text-primary)")
+      .attr("font-family", "'JetBrains Mono', monospace")
+      .attr("font-size", "3px")
+      .attr("font-weight", "500")
+      .text("VP");
+
+    // Standard D3 tick function - update positions using x1/y1/x2/y2 for lines
+    simulation.on("tick", () => {
+      // Update link positions (standard D3 pattern for line elements)
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      // Update node positions
+      nodeGroup.attr("transform", d => `translate(${d.x}, ${d.y})`);
+
+      // Update VP hub position
+      vpGroup.attr("transform", `translate(${heroNode.x}, ${heroNode.y})`);
+    });
+
+    // Restart simulation with low alpha for gentle settling (most work done in pre-ticks)
+    simulation.alpha(0.3).restart();
+
+    // Drag functions
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.15).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      // Don't release hero node
+      if (d.id !== 'hero') {
+        d.fx = null;
+        d.fy = null;
+      }
+    }
+
+    // Expose simulation for external access (e.g., highlighting)
+    window.networkSimulation = simulation;
+    window.simulationNodes = simulationNodes;
+
+    // ===========================================
+    // SCROLL HANDLERS
+    // ===========================================
+
+    const networkContainer = document.getElementById('networkContainer');
+    const networkPills = document.getElementById('networkPills');
+    const siteTitle = document.getElementById('siteTitle');
+    const navIndicator = document.getElementById('navIndicator');
+    const scrollProgress = document.getElementById('scrollProgress');
+    const sections = document.querySelectorAll('.section-card');
+    const allSections = document.querySelectorAll('[data-node]');
+
+    let isCollapsed = false;
+    let currentNode = 'hero';
+
+    function handleScroll() {
+      const scrollY = window.scrollY;
+      const heroHeight = document.getElementById('hero').offsetHeight;
+      const shouldCollapse = scrollY > heroHeight * 0.5;
+
+      if (shouldCollapse !== isCollapsed) {
+        isCollapsed = shouldCollapse;
+        networkContainer.classList.toggle('collapsed', isCollapsed);
+        networkPills.classList.toggle('visible', isCollapsed);
+        siteTitle.classList.toggle('visible', isCollapsed);
+        navIndicator.classList.toggle('visible', isCollapsed);
+      }
+
+      // Update scroll progress
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollY / docHeight;
+      scrollProgress.style.transform = `scaleX(${progress})`;
+    }
+
+    function updateActiveNode(nodeId) {
+      if (nodeId === currentNode) return;
+      currentNode = nodeId;
+
+      // Update node highlighting using D3
+      svg.selectAll('.node-group')
+        .classed('active', d => d.id === nodeId);
+
+      // Update edge highlighting using D3
+      svg.selectAll('.edge')
+        .classed('highlighted', d => {
+          const sourceId = typeof d.source === 'object' ? d.source.id : d.source;
+          const targetId = typeof d.target === 'object' ? d.target.id : d.target;
+          return sourceId === nodeId || targetId === nodeId;
+        })
+        .each(function(d) {
+          // Bring highlighted edges to front
+          const sourceId = typeof d.source === 'object' ? d.source.id : d.source;
+          const targetId = typeof d.target === 'object' ? d.target.id : d.target;
+          if (sourceId === nodeId || targetId === nodeId) {
+            this.parentNode.appendChild(this);
+          }
+        });
+
+      // Update pills - highlight pill matching the node's domain
+      // Find the domain of the active node from the section element
+      const activeSection = document.querySelector(`[data-node="${nodeId}"]`);
+      const activeDomain = activeSection ? activeSection.dataset.domain : null;
+
+      document.querySelectorAll('.network-pill').forEach(pill => {
+        // Pill is active if it targets the node directly OR matches the domain
+        const isActive = pill.dataset.target === nodeId || pill.dataset.domain === activeDomain;
+        pill.classList.toggle('active', isActive);
+      });
+    }
+
+    // Intersection observer - use lower threshold on mobile for better responsiveness
+    const isMobileView = window.innerWidth < 768;
+    const intersectionThreshold = isMobileView ? 0.1 : 0.3;
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.target.classList.contains('section-card')) {
+          entry.target.classList.add('visible');
+        }
+
+        if (entry.isIntersecting && entry.intersectionRatio > intersectionThreshold) {
+          const nodeId = entry.target.dataset.node;
+          if (nodeId) {
+            updateActiveNode(nodeId);
+
+            const index = Array.from(allSections).indexOf(entry.target) + 1;
+            navIndicator.textContent = `${String(index).padStart(2, '0')} / ${String(allSections.length).padStart(2, '0')}`;
+          }
+        }
+      });
+    }, {
+      threshold: [0.1, 0.2, 0.3, 0.5],
+      rootMargin: isMobileView ? '-10% 0px -10% 0px' : '-20% 0px -20% 0px'
+    });
+
+    allSections.forEach(section => sectionObserver.observe(section));
+    sections.forEach(section => sectionObserver.observe(section));
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    // ===========================================
+    // RESPONSIVE RESIZE HANDLER
+    // Recalculate layout when window size changes
+    // ===========================================
+
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        // Recalculate layout parameters
+        const newParams = calculateLayoutParams();
+        const paramsChanged = (
+          newParams.isMobile !== layoutParams.isMobile ||
+          newParams.isTablet !== layoutParams.isTablet ||
+          Math.abs(newParams.hubLinkDistance - layoutParams.hubLinkDistance) > 5
+        );
+
+        if (paramsChanged) {
+          layoutParams = newParams;
+
+          // Update hub position based on screen size
+          const newHubPos = layoutParams.isMobile
+            ? { x: 25, y: 98 }
+            : { x: 18, y: 72 };
+
+          // Move the hero node to new position
+          const heroNode = simulationNodes.find(n => n.id === 'hero');
+          if (heroNode) {
+            heroNode.fx = newHubPos.x;
+            heroNode.fy = newHubPos.y;
+            heroNode.x = newHubPos.x;
+            heroNode.y = newHubPos.y;
+          }
+
+          // Update radial force center point
+          simulation.force("radial").x(newHubPos.x).y(newHubPos.y);
+
+          // Update force parameters
+          simulation.force("link")
+            .distance(d => {
+              const sourceId = typeof d.source === 'object' ? d.source.id : d.source;
+              const targetId = typeof d.target === 'object' ? d.target.id : d.target;
+              if (sourceId === 'hero' || targetId === 'hero') return layoutParams.hubLinkDistance;
+              if (d.crossDomain) return layoutParams.hubLinkDistance * 0.5;
+              const sourceNode = simulationNodes.find(n => n.id === sourceId);
+              const targetNode = simulationNodes.find(n => n.id === targetId);
+              if (sourceNode?.parent || targetNode?.parent) return 18;
+              if (sourceNode?.isParent && targetNode?.isParent) return 25;
+              return 20;
+            });
+
+          simulation.force("charge")
+            .strength(d => {
+              if (d.id === 'hero') return layoutParams.hubRepulsion;
+              if (d.isParent) return -60;
+              return -25;
+            });
+
+          simulation.force("radial")
+            .radius(d => {
+              if (d.id === 'hero') return 0;
+              if (d.isParent) return layoutParams.parentRadial;
+              return layoutParams.childRadial;
+            });
+
+          // Reheat simulation to adjust layout
+          simulation.alpha(0.5).restart();
+        }
+      }, 150);
+    });
+
+    // ===========================================
+    // NAVIGATION
+    // ===========================================
+
+    // Connection chips and pills navigation
+    document.querySelectorAll('.connection-chip[data-target], .network-pill[data-target]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetNode = el.dataset.target;
+        const targetSection = document.querySelector(`[data-node="${targetNode}"]`);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Network container click
+    networkContainer.addEventListener('click', (e) => {
+      if (isCollapsed && e.target === networkContainer) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
+    // ===========================================
+    // SLIDE PANEL
+    // ===========================================
+
+    const slideBackdrop = document.getElementById('slideBackdrop');
+    const slidePanel = document.getElementById('slidePanel');
+    const panelTitle = document.getElementById('panelTitle');
+    const panelContent = document.getElementById('panelContent');
+    const panelClose = document.getElementById('panelClose');
+
+    function openPanel(panelId) {
+      const data = panelData[panelId];
+      if (!data) return;
+
+      panelTitle.textContent = data.title;
+
+      let html = '';
+      data.items.forEach(item => {
+        html += `
+          <div class="panel-item">
+            <h4 class="panel-item-title">${item.title}</h4>
+            <p class="panel-item-description">${item.description}</p>
+            ${item.link ? `<a href="${item.link}" class="panel-item-link" target="_blank">${item.linkText}</a>` : ''}
+          </div>
+        `;
+      });
+      panelContent.innerHTML = html;
+
+      slideBackdrop.classList.add('visible');
+      slidePanel.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePanel() {
+      slideBackdrop.classList.remove('visible');
+      slidePanel.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Panel triggers
+    document.querySelectorAll('.panel-trigger').forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        openPanel(trigger.dataset.panel);
+      });
+    });
+
+    panelClose.addEventListener('click', closePanel);
+    slideBackdrop.addEventListener('click', closePanel);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePanel();
+    });
+  </script>
+
+</body>
+</html>

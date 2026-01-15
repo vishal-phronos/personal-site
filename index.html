@@ -2045,29 +2045,40 @@
       .force("x", d3.forceX(d => d.x).strength(0.05))
       .force("y", d3.forceY(d => d.y).strength(0.05))
       .force("boundary", () => {
-        // Keep nodes on screen but don't force them to edges
-        // Use soft boundary that gently nudges nodes back
+        // Keep nodes and their labels on screen
+        // Account for label width (labels appear to right of node)
         simulationNodes.forEach(d => {
           if (d.id !== 'hero') {
-            // Soft boundaries - nudge back if going off screen
-            if (d.x < 3) d.vx += 0.5;
-            if (d.x > 97) d.vx -= 0.5;
-            if (d.y < 3) d.vy += 0.5;
-            if (d.y > 97) d.vy -= 0.5;
+            // Soft boundaries - nudge back if approaching edges
+            // Left edge: need space for labels that might extend left
+            if (d.x < 8) d.vx += 0.3;
+            // Right edge: need more space for labels extending right
+            if (d.x > 88) d.vx -= 0.3;
+            // Top edge
+            if (d.y < 5) d.vy += 0.3;
+            // Bottom edge
+            if (d.y > 92) d.vy -= 0.3;
 
-            // Hard clamp as fallback
-            d.x = Math.max(0, Math.min(100, d.x));
-            d.y = Math.max(0, Math.min(100, d.y));
+            // On desktop, push nodes away from hero text area (bottom-left quadrant)
+            if (!layoutParams.isMobile && d.x < 55 && d.y > 60) {
+              // Gently push right or up
+              d.vx += 0.2;
+              d.vy -= 0.2;
+            }
+
+            // Hard clamp as fallback - leave room for labels
+            d.x = Math.max(5, Math.min(92, d.x));
+            d.y = Math.max(3, Math.min(95, d.y));
           }
         });
       })
-      .alphaDecay(0.025)
-      .velocityDecay(0.5)
+      .alphaDecay(0.04)
+      .velocityDecay(0.6)
       .stop(); // Stop auto-running - we'll manually tick first
 
     // Run simulation for initial layout before rendering
     // More ticks = more settled initial state, less visible jittering
-    for (let i = 0; i < 250; i++) {
+    for (let i = 0; i < 350; i++) {
       simulation.tick();
     }
 
@@ -2187,12 +2198,12 @@
       vpGroup.attr("transform", `translate(${heroNode.x}, ${heroNode.y})`);
     });
 
-    // Restart simulation with low alpha for gentle settling (most work done in pre-ticks)
-    simulation.alpha(0.3).restart();
+    // Restart simulation with very low alpha for minimal movement (most work done in pre-ticks)
+    simulation.alpha(0.15).restart();
 
     // Drag functions
     function dragstarted(event, d) {
-      if (!event.active) simulation.alphaTarget(0.15).restart();
+      if (!event.active) simulation.alphaTarget(0.1).restart();
       d.fx = d.x;
       d.fy = d.y;
     }
@@ -2381,7 +2392,7 @@
             });
 
           // Reheat simulation to adjust layout
-          simulation.alpha(0.5).restart();
+          simulation.alpha(0.3).restart();
         }
       }, 150);
     });

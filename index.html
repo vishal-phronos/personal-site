@@ -1968,7 +1968,7 @@
     // On mobile, hub centered in the network area
     const hubPos = layoutParams.isMobile
       ? { x: 50, y: 50 }   // Mobile: centered
-      : { x: 22, y: 68 };  // Desktop: aligned with portrait center-right edge
+      : { x: 22, y: 75 };  // Desktop: aligned with portrait center-right edge
 
     // Clone nodes for D3 (it will mutate them)
     // On mobile, start nodes clustered near the hub so they spread outward from top
@@ -2045,37 +2045,12 @@
       .force("x", d3.forceX(d => d.x).strength(0.05))
       .force("y", d3.forceY(d => d.y).strength(0.05))
       .force("boundary", () => {
-        // Keep nodes within bounds and away from hero text area
-        const textZone = layoutParams.textZone;
-
+        // Very loose bounds - just prevent nodes from going way off screen
+        // Let the radial force handle positioning naturally
         simulationNodes.forEach(d => {
           if (d.id !== 'hero') {
-            // On mobile, use very loose bounds - let radial force do the work
-            if (layoutParams.isMobile) {
-              d.x = Math.max(-5, Math.min(105, d.x));
-              d.y = Math.max(-5, Math.min(105, d.y));
-            } else {
-              // Desktop: Keep within tighter bounds
-              d.x = Math.max(5, Math.min(95, d.x));
-              d.y = Math.max(5, Math.min(95, d.y));
-
-              // On desktop, gently push nodes away from text zone
-              if (d.x > textZone.x1 && d.x < textZone.x2 &&
-                  d.y > textZone.y1 && d.y < textZone.y2) {
-                const nudge = 0.5;
-                const distToLeft = d.x - textZone.x1;
-                const distToTop = d.y - textZone.y1;
-                const distToRight = textZone.x2 - d.x;
-
-                if (distToRight < distToLeft && distToRight < distToTop) {
-                  d.vx = (d.vx || 0) + nudge;
-                } else if (distToLeft < distToTop) {
-                  d.vx = (d.vx || 0) - nudge;
-                } else {
-                  d.vy = (d.vy || 0) - nudge;
-                }
-              }
-            }
+            d.x = Math.max(-10, Math.min(110, d.x));
+            d.y = Math.max(-10, Math.min(110, d.y));
           }
         });
       })

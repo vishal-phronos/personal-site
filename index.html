@@ -1945,11 +1945,11 @@
       const parentRadial = Math.max(25, baseRadial * 0.7);
       const childRadial = Math.max(35, baseRadial);
 
-      // Hub link distance - longer on wider screens to spread network more
-      const hubLinkDistance = isMobile ? 45 : (isTablet ? 55 : Math.min(80, 50 + vw / 40));
+      // Hub link distance - moderate to keep network compact
+      const hubLinkDistance = isMobile ? 35 : (isTablet ? 40 : 45);
 
-      // Repulsion strength scales with available space
-      const hubRepulsion = isMobile ? -300 : (isTablet ? -400 : Math.min(-600, -400 - vw / 10));
+      // Repulsion strength - moderate to prevent overlap without pushing to edges
+      const hubRepulsion = isMobile ? -150 : (isTablet ? -200 : -250);
 
       return {
         textZone,
@@ -2028,8 +2028,8 @@
       .force("charge", d3.forceManyBody()
         .strength(d => {
           if (d.id === 'hero') return layoutParams.hubRepulsion;
-          if (d.isParent) return -60;
-          return -25;
+          if (d.isParent) return -30;
+          return -15;
         })
       )
       .force("collision", d3.forceCollide().radius(d => d.size + 4))
@@ -2369,8 +2369,8 @@
           simulation.force("charge")
             .strength(d => {
               if (d.id === 'hero') return layoutParams.hubRepulsion;
-              if (d.isParent) return -60;
-              return -25;
+              if (d.isParent) return -30;
+              return -15;
             });
 
           simulation.force("radial")

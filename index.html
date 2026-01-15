@@ -1968,7 +1968,7 @@
     // On mobile, hub centered in the network area
     const hubPos = layoutParams.isMobile
       ? { x: 50, y: 50 }   // Mobile: centered
-      : { x: 22, y: 75 };  // Desktop: aligned with portrait center-right edge
+      : { x: 18, y: 75 };  // Desktop: aligned with portrait center-right edge
 
     // Clone nodes for D3 (it will mutate them)
     // On mobile, start nodes clustered near the hub so they spread outward from top
@@ -2045,12 +2045,19 @@
       .force("x", d3.forceX(d => d.x).strength(0.05))
       .force("y", d3.forceY(d => d.y).strength(0.05))
       .force("boundary", () => {
-        // Very loose bounds - just prevent nodes from going way off screen
-        // Let the radial force handle positioning naturally
+        // Keep nodes on screen but don't force them to edges
+        // Use soft boundary that gently nudges nodes back
         simulationNodes.forEach(d => {
           if (d.id !== 'hero') {
-            d.x = Math.max(-10, Math.min(110, d.x));
-            d.y = Math.max(-10, Math.min(110, d.y));
+            // Soft boundaries - nudge back if going off screen
+            if (d.x < 3) d.vx += 0.5;
+            if (d.x > 97) d.vx -= 0.5;
+            if (d.y < 3) d.vy += 0.5;
+            if (d.y > 97) d.vy -= 0.5;
+
+            // Hard clamp as fallback
+            d.x = Math.max(0, Math.min(100, d.x));
+            d.y = Math.max(0, Math.min(100, d.y));
           }
         });
       })

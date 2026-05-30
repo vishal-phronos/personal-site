@@ -244,6 +244,17 @@
       stroke-width: 0.5;
     }
 
+    .edge.hover-only-edge {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .edge.hover-only-edge.hover-visible {
+      opacity: 1;
+      stroke: rgba(78, 205, 196, 0.4);
+      stroke-dasharray: 2 2;
+    }
+
     .node-group {
       cursor: pointer;
       pointer-events: auto;
@@ -1321,6 +1332,22 @@
       </div>
     </section>
 
+    <!-- Child: Stanford -->
+    <section class="section-card" data-domain="cognition" data-node="stanford">
+      <div class="section-domain">Stanford University</div>
+      <div class="section-period">Director, Digital Strategy & Library Technology · 2026–Present</div>
+      <h2 class="section-title">Knowledge Provenance in Medical Education</h2>
+      <div class="section-description">
+        <p>An AI-augmented world promises faster cures for patients and more optimal decisions by physicians. But how do we equip the physicians of tomorrow with know-how of AI, while ensuring they develop the cognitive faculties that undergird their medical reasoning - the very cognitive process that AI is poised to automate? For biomedical scientists, how can we ensure that AI advances scientific innovation, without eroding the institutional ties - exercised through collaboration and communication - that undergird the practice of science? Finally, what becomes of the library - that civic institution that once enshrined knowledge, where generations of human learned to both revere knowledge and access it - now that LLMs have (seemingly) made all human knowledge available at the push of a button?</p>
+        <p>As I commence addressing these questions at Lane Medical Library, my working hypothesis is that <strong><i>knowledge provenance</i></strong> - the semantic genealogy tracing where knowledge is derived from - may serve as a measurable feature of an individual's cognitive process and their educational journey, and the modern library has an important role to play in archiving the ground truth for knowledge in specific domains, for local cultures.</p>
+      </div>
+      <div class="connections-label">Explore →</div>
+      <div class="connections-scroll">
+        <a href="https://lane.stanford.edu/index.html" class="connection-chip" target="_blank">Lane Library</a>
+        <a href="https://med.stanford.edu/profiles/vishal-patel-2026" class="connection-chip" target="_blank">Stanford</a>
+      </div>
+    </section>
+
     <!-- Child: Phronos -->
     <section class="section-card" data-domain="cognition" data-node="phronos">
       <div class="section-domain">Phronos</div>
@@ -1341,7 +1368,7 @@
     <!-- Child: GWI -->
     <section class="section-card" data-domain="cognition" data-node="gwi">
       <div class="section-domain">Global Wellness Institute</div>
-      <div class="section-period">Men's Wellbeing Initiative</div>
+      <div class="section-period">Vice Chair, Men's Wellbeing Initiative · 2025–Present</div>
       <h2 class="section-title">Advancing Men's Health Research</h2>
       <div class="section-description">
         <p>Member of the Global Wellness Institute's Men's Wellbeing Initiative, working to advance research and awareness around men's physical, mental, and emotional health.</p>
@@ -1426,7 +1453,7 @@
       <h2 class="section-title">Building Data-Driven Evidence Systems</h2>
       <div class="section-description">
         <p>At the intersection of healthcare, machine learning, and clinical operations—building analytic approaches that reduce medical costs and improve quality.</p>
-        <p>My focus was on the <em>epistemic opacity</em> of the healthcare system: how do we understand and process medical data when the systems generating that data are themselves opaque?</p>
+        <p>My focus was on the <em>epistemic opacity</em> of the healthcare system: how do we understand and process medical data to improve professional decision making within the system?</p>
       </div>
     </section>
 
@@ -1486,7 +1513,7 @@
 
     <!-- Child: CRANE -->
     <section class="section-card" data-domain="research" data-node="crane">
-      <div class="section-domain">CRANE Algorithm</div>
+      <div class="section-domain">Network Algorithms</div>
       <div class="section-period">Research · 2013</div>
       <h2 class="section-title">Network Signatures of Survival</h2>
       <div class="section-description">
@@ -1502,11 +1529,10 @@
     <!-- Child: EHR Mining -->
     <section class="section-card" data-domain="research" data-node="ehr">
       <div class="section-domain">EHR Data Mining</div>
-      <div class="section-period">Research Fellow · 2013–2015</div>
+      <div class="section-period">Explorys Platform</div>
       <h2 class="section-title">Multivariate Pharmacosurveillance</h2>
       <div class="section-description">
-        <p>At MetroHealth System and the Louis B. Stokes VA Medical Center, I developed statistical approaches to mine patterns from de-identified patient records—detecting drug side effects and predicting adverse events.</p>
-        <p>This work showed that EHR data could reveal <em>multivariate pharmacosurveillance signals</em> invisible to traditional case reports.</p>
+        <p>At the MetroHealth System (Cleveland, OH), I developed statistical approaches to mine patterns from de-identified patient records, accurately recapitulating rare post-marketing drug side effect syndromes that were traditionally discovered via case reports.</p>
       </div>
       <div class="connections-label">Publication →</div>
       <div class="connections-scroll">
@@ -1520,7 +1546,7 @@
       <div class="section-period">Explorys Platform</div>
       <h2 class="section-title">Population-Level Analytics</h2>
       <div class="section-description">
-        <p>Using the Explorys platform to analyze population-level electronic health records, I applied NLP algorithms to physicians' notes and collaborated with clinicians to identify clinical endpoints.</p>
+        <p>At the Louis B. Stokes VA Medical Center, I applied NLP algorithms to physicians' notes to analyze responses to clozapine among patients with schizophrenia.</p>
         <p>As faculty in the Systems Biology and Bioinformatics program at Case Western, I taught graduate courses in Clinical Research Informatics and Healthcare Data Analytics.</p>
       </div>
       <div class="connections-label">Publication →</div>
@@ -1765,6 +1791,7 @@
       { id: "cognition", label: "Cognition", x: 35, y: 55, size: 2.5, domain: "cognition", isParent: true },
       { id: "phronos", label: "Phronos", x: 28, y: 35, size: 1.5, domain: "cognition", parent: "cognition" },
       { id: "gwi", label: "GWI", x: 50, y: 38, size: 1.5, domain: "cognition", parent: "cognition" },
+      { id: "stanford", label: "Stanford", x: 22, y: 42, size: 1.5, domain: "cognition", parent: "cognition" },
 
       // Chapter V: Wellness - Parent + Children (upper right quadrant)
       { id: "wellness", label: "Wellness", x: 60, y: 40, size: 2.5, domain: "wellness", isParent: true },
@@ -1779,10 +1806,10 @@
       { id: "xg", label: "xG", x: 75, y: 82, size: 1.2, domain: "data-science", parent: "data-science" },
 
       // Chapter III: Research - Parent + Children (bottom center-right)
-      { id: "research", label: "Research", x: 55, y: 75, size: 2.5, domain: "research", isParent: true },
-      { id: "crane", label: "CRANE", x: 60, y: 90, size: 1.2, domain: "research", parent: "research" },
+      { id: "research", label: "Informatics",x: 55, y: 75, size: 2.5, domain: "research", isParent: true },
+      { id: "crane", label: "Network Algorithms",x: 60, y: 90, size: 1.2, domain: "research", parent: "research" },
       { id: "ehr", label: "EHR", x: 45, y: 88, size: 1.2, domain: "research", parent: "research" },
-      { id: "explorys", label: "Explorys", x: 40, y: 80, size: 1.2, domain: "research", parent: "research" },
+      { id: "explorys", label: "Syndromic Surveillance",x: 40, y: 80, size: 1.2, domain: "research", parent: "research" },
 
       // Chapter II: Education - Parent + Children (bottom left, closer to hub)
       { id: "education", label: "Education", x: 28, y: 70, size: 2.5, domain: "education", isParent: true },
@@ -1805,6 +1832,7 @@
       // Parent to children - Cognition
       { source: "cognition", target: "phronos" },
       { source: "cognition", target: "gwi" },
+      { source: "cognition", target: "stanford" },
 
       // Parent to children - Wellness
       { source: "wellness", target: "sensei" },
@@ -1876,7 +1904,11 @@
       { source: "cognition", target: "data-science", crossDomain: true },
 
       // Wellness → Ayurveda (wellness practice informed by Ayurveda)
-      { source: "wellness", target: "ayurveda", crossDomain: true }
+      { source: "wellness", target: "ayurveda", crossDomain: true },
+
+      // Stanford → Education and Research (hover-only dashed edges)
+      { source: "stanford", target: "education", crossDomain: true, hoverOnly: true },
+      { source: "stanford", target: "research", crossDomain: true, hoverOnly: true }
     ];
 
     const domainColors = {
@@ -1913,7 +1945,8 @@
     const links = edges.map(e => ({
       source: e.source,
       target: e.target,
-      crossDomain: e.crossDomain || false
+      crossDomain: e.crossDomain || false,
+      hoverOnly: e.hoverOnly || false
     }));
 
     // ===========================================
@@ -2112,6 +2145,7 @@
       .data(resolvedLinks)
       .join("line")
       .attr("class", d => {
+        if (d.hoverOnly) return "edge cross-domain hover-only-edge";
         if (d.crossDomain) return "edge cross-domain";
         if (d.source.id === 'hero' || d.target.id === 'hero') return "edge hub-edge";
         return "edge regular";
@@ -2174,6 +2208,15 @@
       .attr("y", d => d.size + 3)
       .attr("text-anchor", "middle")
       .text(d => d.label);
+
+    // Stanford node hover - reveal dashed edges to Education and Research
+    svg.selectAll('.node-group[data-id="stanford"]')
+      .on("mouseenter.hoverEdges", () => {
+        svg.selectAll('.hover-only-edge').classed('hover-visible', true);
+      })
+      .on("mouseleave.hoverEdges", () => {
+        svg.selectAll('.hover-only-edge').classed('hover-visible', false);
+      });
 
     // Add VP hub node (only visible when collapsed)
     // Appended last so it renders on top of edges

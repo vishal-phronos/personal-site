@@ -244,16 +244,6 @@
       stroke-width: 0.5;
     }
 
-    .edge.hover-only-edge {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .edge.hover-only-edge.hover-visible {
-      opacity: 1;
-      stroke: rgba(78, 205, 196, 0.4);
-      stroke-dasharray: 2 2;
-    }
 
     .node-group {
       cursor: pointer;
@@ -846,6 +836,11 @@
     .section-description em {
       color: var(--text-primary);
       font-style: italic;
+    }
+
+    .section-description strong {
+      font-weight: 500;
+      color: var(--text-primary);
     }
 
     .section-quote {
@@ -1494,6 +1489,10 @@
       <div class="section-description">
         <p>Developed predictive models of insurance claims and clinical datasets. Implemented ML algorithms to identify core drivers of clinical outcomes. Served as physician advisor to product development teams.</p>
       </div>
+      <div class="connections-label">Learn more →</div>
+      <div class="connections-scroll">
+        <a href="https://www.tandfonline.com/doi/full/10.2147/IEH.S84094" class="connection-chip" target="_blank">Geisinger</a>
+      </div>
     </section>
 
     <!-- CHAPTER III: RESEARCH -->
@@ -1906,9 +1905,9 @@
       // Wellness → Ayurveda (wellness practice informed by Ayurveda)
       { source: "wellness", target: "ayurveda", crossDomain: true },
 
-      // Stanford → Education and Research (hover-only dashed edges)
-      { source: "stanford", target: "education", crossDomain: true, hoverOnly: true },
-      { source: "stanford", target: "research", crossDomain: true, hoverOnly: true }
+      // Stanford → Education and Research (cross-domain dashed edges)
+      { source: "stanford", target: "education", crossDomain: true },
+      { source: "stanford", target: "research", crossDomain: true }
     ];
 
     const domainColors = {
@@ -2208,15 +2207,6 @@
       .attr("y", d => d.size + 3)
       .attr("text-anchor", "middle")
       .text(d => d.label);
-
-    // Stanford node hover - reveal dashed edges to Education and Research
-    svg.selectAll('.node-group[data-id="stanford"]')
-      .on("mouseenter.hoverEdges", () => {
-        svg.selectAll('.hover-only-edge').classed('hover-visible', true);
-      })
-      .on("mouseleave.hoverEdges", () => {
-        svg.selectAll('.hover-only-edge').classed('hover-visible', false);
-      });
 
     // Add VP hub node (only visible when collapsed)
     // Appended last so it renders on top of edges

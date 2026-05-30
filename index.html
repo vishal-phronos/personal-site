@@ -741,7 +741,7 @@
     }
 
     /* Child/subsections - more compact grouping */
-    .section-card + .section-card:not([data-node="cognition"]):not([data-node="wellness"]):not([data-node="data-science"]):not([data-node="research"]):not([data-node="education"]):not([data-node="hero"]) {
+    .section-card + .section-card:not([data-node="cognition"]):not([data-node="wellness"]):not([data-node="data-science"]):not([data-node="research"]):not([data-node="education"]):not([data-node="hero"]):not([data-node="thread"]) {
       min-height: auto;
       padding-top: 3rem;
       padding-bottom: 3rem;
@@ -765,7 +765,7 @@
     }
 
     /* Hide separator line for consecutive subsections */
-    .section-card + .section-card:not([data-node="cognition"]):not([data-node="wellness"]):not([data-node="data-science"]):not([data-node="research"]):not([data-node="education"]):not([data-node="hero"])::before {
+    .section-card + .section-card:not([data-node="cognition"]):not([data-node="wellness"]):not([data-node="data-science"]):not([data-node="research"]):not([data-node="education"]):not([data-node="hero"]):not([data-node="thread"])::before {
       opacity: 0.1;
     }
 
@@ -1199,9 +1199,9 @@
     <a class="network-pill" data-domain="cognition" data-target="cognition">Cognition</a>
     <a class="network-pill" data-domain="wellness" data-target="wellness">Wellness</a>
     <a class="network-pill" data-domain="data-science" data-target="data-science">Data Science</a>
-    <a class="network-pill" data-domain="research" data-target="research">Research</a>
+    <a class="network-pill" data-domain="research" data-target="research">Informatics</a>
     <a class="network-pill" data-domain="education" data-target="education">Education</a>
-    <a class="network-pill" data-domain="meta" data-target="hero">Thread</a>
+    <a class="network-pill" data-domain="meta" data-target="thread">Thread</a>
   </nav>
 
   <!-- Header -->
@@ -1631,7 +1631,7 @@
       <h2 class="chapter-title">The Thread</h2>
     </div>
 
-    <section class="section-card" data-domain="meta" data-node="hero">
+    <section class="section-card" data-domain="meta" data-node="thread">
       <div class="section-domain">Philosophy</div>
       <div class="section-period">Ongoing inquiry</div>
       <h2 class="section-title">The Recursive Embedding of a Life</h2>
@@ -1808,7 +1808,7 @@
       { id: "research", label: "Informatics",x: 55, y: 75, size: 2.5, domain: "research", isParent: true },
       { id: "crane", label: "Network Algorithms",x: 60, y: 90, size: 1.2, domain: "research", parent: "research" },
       { id: "ehr", label: "EHR", x: 45, y: 88, size: 1.2, domain: "research", parent: "research" },
-      { id: "explorys", label: "Syndromic Surveillance",x: 40, y: 80, size: 1.2, domain: "research", parent: "research" },
+      { id: "explorys", label: "Surveillance",x: 40, y: 80, size: 1.2, domain: "research", parent: "research" },
 
       // Chapter II: Education - Parent + Children (bottom left, closer to hub)
       { id: "education", label: "Education", x: 28, y: 70, size: 2.5, domain: "education", isParent: true },
